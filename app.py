@@ -15,6 +15,41 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.secret_key = os.getenv('SECRET_KEY', 'your_default_secret_key')
 
 # Database connection
+@app.route('/create_tables')
+def create_tables():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS voyages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        destination VARCHAR(255),
+        type VARCHAR(100),
+        image VARCHAR(255),
+        date_depart DATE,
+        date_retour DATE,
+        prix DECIMAL(10,2),
+        places_disponibles INT,
+        statut VARCHAR(50),
+        description TEXT
+    )""")
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS guides (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nom VARCHAR(100),
+        prenom VARCHAR(100),
+        email VARCHAR(255),
+        telephone VARCHAR(20),
+        experience TEXT,
+        voyage VARCHAR(255),
+        languages VARCHAR(255)
+    )""")
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return "Tables created!"
 
 def get_db_connection():
     db_url = os.environ.get("MYSQL_URL")
