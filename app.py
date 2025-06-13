@@ -40,7 +40,7 @@ def close_db_connection(exception=None):
 
 @app.route('/')
 def home():
-    return render_template(url_for('login'))
+    return redirect(url_for('login'))
 
 @app.route('/home')
 def home_page():
