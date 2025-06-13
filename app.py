@@ -34,7 +34,14 @@ def close_db_connection(exception=None):
 
 @app.route('/')
 def home():
-    return redirect(url_for('login'))
+    try:
+        conn = get_db_connection()
+        print("✅ Connected to DB")
+        conn.close()
+        return 'Home Page'
+    except Exception as e:
+        return f"❌ DB Connection Error: {str(e)}"
+    #return redirect(url_for('login'))
 
 @app.route('/home')
 def home_page():
