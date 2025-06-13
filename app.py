@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import mysql.connector
+import urllib.parse as urlparse
 import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -7,6 +8,19 @@ from flask import Flask, request, jsonify
 
 
 app = Flask(__name__)
+# Load MYSQL_URL from environment variables
+db = urlparse.urlparse(os.environ['MYSQL_URL'])
+
+
+app.config.update({
+    'MYSQL_HOST': db.hostname,
+    'MYSQL_USER': db.username,
+    'MYSQL_PASSWORD': db.password,
+    'MYSQL_DB': db.path.lstrip('/'),
+    'MYSQL_PORT': db.port or 3306,
+})
+
+mysql = MySQL(app)
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
@@ -413,7 +427,8 @@ def ajouter_offre():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
+else:
+    app.run()
 
 
 
