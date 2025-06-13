@@ -3,6 +3,7 @@ import mysql.connector
 import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
+import urllib.parse as urlparse
 
 app = Flask(__name__)
 
