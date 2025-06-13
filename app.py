@@ -29,12 +29,16 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.secret_key = 'your_secret_key'  # مفتاح الجلسة
 
 def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="1903",
-        database="ourida_travel"
-    )
+     if 'db' not in g or not g.db.is_connected():
+        g.db = mysql.connector.connect(
+            host=os.getenv('DB_HOST'),
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD'),
+            database=os.getenv('DB_NAME'),
+            port=int(os.getenv('DB_PORT', 3306))
+        )
+    return g.db
+
 @app.route('/')
 def home():
     return render_template(url_for('login'))
