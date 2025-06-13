@@ -44,7 +44,7 @@ def home():
         conn = get_db_connection()
         print("✅ Connected to DB")
         conn.close()
-        return 'Home Page'
+        return render_template(url_for('login'))
     except Exception as e:
         return f"❌ DB Connection Error: {str(e)}"
     #return redirect(url_for('login'))
