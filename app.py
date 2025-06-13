@@ -38,7 +38,7 @@ def close_db_connection(exception=None):
     if db is not None:
         db.close()
 
-app.route('/G_Transport')
+@app.route('/G_Transport')
 def G_Transport():
     return render_template('G_Transport.html')
 
