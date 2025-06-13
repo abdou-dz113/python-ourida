@@ -237,15 +237,21 @@ main {
             <span class="navbar-toggler-icon"></span>
           </button>
 
-          <div class="collapse navbar-collapse justify-content-end" id="mainNav">
+           <div class="collapse navbar-collapse justify-content-end" id="mainNav">
             <ul class="navbar-nav py-0 px-3">
-			<li class="nav-item"><a class="nav-link text-dark" href="#Home">Home</a></li>
+			<li class="nav-item">
+  <a class="nav-link text-dark" href="{{ url_for('home_page') }}">Home</a>
+</li>
+
 
               
-              <li class="nav-item"><a class="nav-link text-dark" href="#about">About Us</a></li>
+              
 			             <li class="nav-item">
-						 <li class="nav-item"><a class="nav-link text-dark" href="#Gallery">Gallery</a></li>
-	<li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('offers') }}">Offers</a></li>
+						 <li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('gallery') }}">Gallery</a></li>
+	<li class="nav-item">
+  <a class="nav-link text-dark" href="{{ url_for('offers') }}">Offers</a>
+</li>
+
              <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle text-dark" href="#" id="tripsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Trips
@@ -258,18 +264,17 @@ main {
                 <li><a class="dropdown-item" href="{{ url_for('omra_trips') }}">Hajj & Umrah</a></li>
               </ul>
             </li>
-<li class="nav-item">
- <a class="nav-link text-dark" href="{{ url_for('vip') }}">Customized Trip</a>
-</li>
+<a class="nav-link text-dark" href="{{ url_for('vip') }}">Customized Trip</a>
+
+
+          
+
+			  
+			  
 
               <li class="nav-item">
   <a class="nav-link text-dark" href="{{ url_for('contact') }}">Contact US</a>
 </li>
-
-			  <li class="nav-item"><a class="nav-link text-dark" href="#testimonials">Testimonials</a></li>
-			  
-
-              <li class="nav-item"><a class="nav-link text-dark" href="#contact">Contact US</a></li>
 
 
 
