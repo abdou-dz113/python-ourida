@@ -187,3 +187,55 @@ def add_guide():
         conn.close()
 
     return redirect(url_for('page_guides'))
+
+app.route('/G_Transport')
+def G_Transport():
+    return render_template('G_Transport.html')
+
+@app.route('/vip')
+def vip():
+    return render_template('Vip.html')
+@app.route('/contact')
+def contact():
+    return render_template('Contact.html')
+@app.route('/G_Factures')
+def G_Factures():
+    return render_template('G_Factures.html')
+@app.route('/Hotels')
+def Hotels():
+    return render_template('Hotels.html')
+@app.route('/حجز')
+def booking():
+    return render_template('حجز.html')
+
+@app.route('/G_Reservations')
+def G_Reservations():
+    return render_template('G_Réservations.html')
+@app.route('/G_Offres')
+def G_Offres():
+    return render_template('G_Offres.html')
+@app.route('/G_Clients')
+def G_Clients():
+    return render_template('G_Clients.html')
+@app.route('/G_Messages')
+def G_Messages():
+    return render_template('gMsg.html')
+
+@app.route('/medical-trips')
+def medical_trips():
+    return render_template('Medical Trips.html')
+@app.route('/national-trips')
+def national_trips():
+    return render_template('National Trips.html')
+@app.route('/international-trips')
+def international_trips():
+    return render_template('International trips.html')  
+@app.route('/omra-trips')
+def omra_trips():
+    return render_template('haj.html')
+@app.route('/gallery')  
+def gallery():
+    return render_template('Gallery.html')
+@app.route('/offers')
+def offers():
+    return render_template('offers.html')
