@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+    /* ========== VARIABLES & RESET ========== */
+    :root {
+      --primary: #4d90fe;
+      --primary-dark: #357ae8;
+      --secondary: #6c757d;
+      --secondary-dark: #5a6268;
+      --danger: #dc3545;
+      --danger-dark: #c82333;
+      --success: #28a745;
+      --success-dark: #218838;
+      --white: #fff;
+      --light: #f8f9fa;
+      --dark: #333;
+      --gray: #ddd;
+    }
+
+    .lang-switcher {
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        margin-right: 15px;
+        background-color: rgb(247, 243, 239);
+    }
+
+    /* Pour la langue arabe */
+    html[dir="rtl"] body {
+        direction: rtl;
+        text-align: right;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Actions */
+    .action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn-edit {
+        color: #4d90fe;
+    }
+
+    .btn-delete {
+        color: #dc3545;
+    }
+
+    /* ========== IMAGES ========== */
+    .travel-image {
+        width: 60px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    /* ========== BASE STYLES ========== */
+    body {
+        font-family: 'Arial', sans-serif;
+        background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80') no-repeat center center fixed;
+        background-size: cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        position: relative;
+    }
+
+    /* ========== LAYOUT ========== */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        width: 95%;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header {
+        padding: 20px 30px;
+        background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+        color: var(--white);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .header h1 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .main-content {
+        padding: 20px;
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+
+    /* ========== SEARCH & FILTERS ========== */
+    .search-filter-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid var(--gray);
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .search-box input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group label {
+        font-weight: 500;
+        color: #555;
+        white-space: nowrap;
+    }
+
+    .filter-group select {
+        padding: 10px 12px;
+        border: 1px solid var(--gray);
+        border-radius: 6px;
+        background-color: var(--white);
+        font-size: 14px;
+        min-width: 150px;
+    }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-print {
+        color: #6c757d;
+    }
+    
+    .action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn-edit {
+        color: #4d90fe;
+    }
+
+    .btn-delete {
+        color: #dc3545;
+    }
+    
+    .btn i {
+        margin-right: 6px;
+    }
+    
+    .btn-primary {
+        background-color: var(--success);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--success-dark);
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-secondary {
+        background-color: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--secondary-dark);
+    }
+
+    .btn-danger {
+        background-color: var(--danger);
+        color: var(--white);
+    }
+
+    .btn-danger:hover {
+        background-color: var(--danger-dark);
+    }
+
+    /* ========== TABLE ========== */
+    .table-responsive {
+        overflow-x: auto;
+        margin-bottom: 20px;
+        border-radius: 6px;
+        border: 1px solid #eee;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    th {
+        background-color: var(--light);
+        font-weight: 600;
+        color: #555;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        position: sticky;
+        top: 0;
+    }
+
+    tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    /* ========== MODALS ========== */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow-y: auto;
+    }
+
+    .modal-content {
+        background-color: var(--white);
+        margin: 30px auto;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 500px;
+        animation: modalopen 0.3s;
+    }
+
+    @keyframes modalopen {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #777;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* ========== FORM ELEMENTS ========== */
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 15px;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: #555;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--gray);
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+    }
+
+    /* Star rating */
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    .star-rating input {
+        display: none;
+    }
+
+    .star-rating label {
+        font-size: 24px;
+        color: #ccc;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .star-rating input:checked ~ label,
+    .star-rating input:hover ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #ffc107;
+    }
+
+    /* Confirmation modal */
+    .confirmation-icon {
+        text-align: center;
+        font-size: 48px;
+        color: var(--danger);
+        margin-bottom: 15px;
+    }
+
+    .confirmation-text {
+        text-align: center;
+        margin-bottom: 0;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+        }
+        
+        .search-filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .search-box {
+            min-width: 100%;
+        }
+        
+        .filter-group {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+        
+        .modal-content {
+            width: 95%;
+            margin: 20px auto;
+        }
+
+        .form-row {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header h1 {
+            font-size: 18px;
+        }
+        
+        .btn {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+        
+        th, td {
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+    }
+
+    /* RTL styles */
+    html[dir="rtl"] .star-rating {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+    html[dir="rtl"] .btn i {
+        margin-right: 0;
+        margin-left: 6px;
+    }
+
+    html[dir="rtl"] .action-btn {
+        margin-right: 0;
+        margin-left: 5px;
+    }
+
+    html[dir="rtl"] .lang-switcher {
+        margin-right: 0;
+        margin-left: 15px;
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="app-title">Hotel Management System</h1>
+            <div>
+                <select class="lang-switcher" id="language-switcher">
+                    <option value="en">EN</option>
+                    <option value="fr">FR</option>
+                    <option value="ar">AR</option> 
+                </select>
+                <button class="btn btn-primary" id="add-hotel-btn">
+                    <i class="fas fa-plus"></i>
+                    <span id="add-hotel-text">Add Hotel</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search hotels...">
+                </div>
+                <div class="filter-group">
+                    <label id="filter-label">Filter by:</label>
+                    <select id="country-filter">
+                        <option value="">All Countries</option>
+                        <option value="France">France</option>
+                        <option value="USA">USA</option>
+                        <option value="UK">UK</option>
+                        <option value="Japan">Japan</option>
+                        <option value="Spain">Spain</option>
+                    </select>
+                    <select id="city-filter">
+                        <option value="">All Cities</option>
+                        <option value="Paris">Paris</option>
+                        <option value="New York">New York</option>
+                        <option value="London">London</option>
+                        <option value="Tokyo">Tokyo</option>
+                        <option value="Barcelona">Barcelona</option>
+                    </select>
+                    <select id="rating-filter">
+                        <option value="">All Ratings</option>
+                        <option value="1">1 Star</option>
+                        <option value="2">2 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="5">5 Stars</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="hotels-table">
+                    <thead>
+                        <tr>
+                            <th class="id-column">ID</th>
+                            <th id="name-header">Name</th>
+                            <th id="city-header">City</th>
+                            <th id="country-header">Country</th>
+                            <th id="rating-header">Rating</th>
+                            <th id="site-header">Website</th>
+                            <th id="actions-header">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hotels-table-body">
+                        <!-- Hotels will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Hotel Modal -->
+    <div class="modal" id="hotel-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Add New Hotel</h3>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="hotel-form" method="POST" action="/add-hotel">
+                    <input type="hidden" id="hotel-id" name="hotel-id">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="hotel-name" id="name-label">Hotel Name</label>
+                            <input type="text" id="hotel-name" name="hotel-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hotel-city" id="city-label">City</label>
+                            <input type="text" id="hotel-city" name="hotel-city" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="hotel-country" id="country-label">Country</label>
+                            <select id="hotel-country" name="hotel-country" required>
+                                <option value="">Select Country</option>
+                                <option value="Afghanistan">Afghanistan</option>
+                                <option value="Albania">Albania</option>
+                                <option value="Algeria">Algeria</option>
+                                <option value="Andorra">Andorra</option>
+                                <option value="Angola">Angola</option>
+                                <option value="Argentina">Argentina</option>
+                                <option value="Australia">Australia</option>
+                                <option value="Austria">Austria</option>
+                                <option value="Bahamas">Bahamas</option>
+                                <option value="Bahrain">Bahrain</option>
+                                <option value="Bangladesh">Bangladesh</option>
+                                <option value="Belgium">Belgium</option>
+                                <option value="Brazil">Brazil</option>
+                                <option value="Canada">Canada</option>
+                                <option value="China">China</option>
+                                <option value="Egypt">Egypt</option>
+                                <option value="France">France</option>
+                                <option value="Germany">Germany</option>
+                                <option value="India">India</option>
+                                <option value="Italy">Italy</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Morocco">Morocco</option>
+                                <option value="Saudi Arabia">Saudi Arabia</option>
+                                <option value="Spain">Spain</option>
+                                <option value="Turkey">Turkey</option>
+                                <option value="United Arab Emirates">United Arab Emirates</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                                <option value="United States">United States</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label id="rating-label">Rating</label>
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="rating" value="5" />
+                                <label for="star5" title="5 stars">★</label>
+                                <input type="radio" id="star4" name="rating" value="4" />
+                                <label for="star4" title="4 stars">★</label>
+                                <input type="radio" id="star3" name="rating" value="3" />
+                                <label for="star3" title="3 stars">★</label>
+                                <input type="radio" id="star2" name="rating" value="2" />
+                                <label for="star2" title="2 stars">★</label>
+                                <input type="radio" id="star1" name="rating" value="1" />
+                                <label for="star1" title="1 star">★</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hotel-site" id="site-label">Website URL</label>
+                        <input type="url" id="hotel-site" name="hotel-site" placeholder="https://example.com">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="save-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal confirmation-modal" id="confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="confirm-title">Confirm Deletion</h3>
+                <button class="close-btn" id="close-confirm-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirmation-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <p class="confirmation-text" id="confirm-text">Are you sure you want to delete this hotel? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-delete-btn">Cancel</button>
+                <button class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample hotel data
+        let hotels = [
+            { id: 1, name: "Grand Plaza", city: "Paris", country: "France", rating: 5, site: "https://grandplaza.com" },
+            { id: 2, name: "Sunset Resort", city: "New York", country: "USA", rating: 4, site: "https://sunsetresort.com" },
+            { id: 3, name: "Mountain Lodge", city: "London", country: "UK", rating: 3, site: "https://mountainlodge.co.uk" },
+            { id: 4, name: "Tokyo Central", city: "Tokyo", country: "Japan", rating: 4, site: "https://tokyocentral.jp" },
+            { id: 5, name: "Seaside Inn", city: "Barcelona", country: "Spain", rating: 2, site: "https://seasideinn.es" }
+        ];
+
+        // DOM elements
+        const hotelsTableBody = document.getElementById('hotels-table-body');
+        const hotelForm = document.getElementById('hotel-form');
+        const hotelModal = document.getElementById('hotel-modal');
+        const confirmModal = document.getElementById('confirm-modal');
+        const addHotelBtn = document.getElementById('add-hotel-btn');
+        const searchInput = document.getElementById('search-input');
+        const countryFilter = document.getElementById('country-filter');
+        const cityFilter = document.getElementById('city-filter');
+        const ratingFilter = document.getElementById('rating-filter');
+        const languageSwitcher = document.getElementById('language-switcher');
+
+        // Current language
+        let currentLanguage = 'en';
+
+        // Translations
+        const translations = {
+            en: {
+                appTitle: "Hotel Management System",
+                addHotel: "Add Hotel",
+                searchPlaceholder: "Search hotels...",
+                filterLabel: "Filter by:",
+                allCountries: "All Countries",
+                allCities: "All Cities",
+                allRatings: "All Ratings",
+                nameHeader: "Name",
+                cityHeader: "City",
+                countryHeader: "Country",
+                ratingHeader: "Rating",
+                siteHeader: "Website",
+                actionsHeader: "Actions",
+                modalAddTitle: "Add New Hotel",
+                modalEditTitle: "Edit Hotel",
+                nameLabel: "Hotel Name",
+                cityLabel: "City",
+                countryLabel: "Country",
+                ratingLabel: "Rating",
+                siteLabel: "Website URL",
+                cancel: "Cancel",
+                save: "Save",
+                edit: "Edit",
+                delete: "Delete",
+                confirmTitle: "Confirm Deletion",
+                confirmText: "Are you sure you want to delete this hotel? This action cannot be undone.",
+                deleteBtn: "Delete"
+            },
+            fr: {
+                appTitle: "Système de Gestion Hôtelière",
+                addHotel: "Ajouter un Hôtel",
+                searchPlaceholder: "Rechercher des hôtels...",
+                filterLabel: "Filtrer par :",
+                allCountries: "Tous les pays",
+                allCities: "Toutes les villes",
+                allRatings: "Toutes les évaluations",
+                nameHeader: "Nom",
+                cityHeader: "Ville",
+                countryHeader: "Pays",
+                ratingHeader: "Évaluation",
+                siteHeader: "Site web",
+                actionsHeader: "Actions",
+                modalAddTitle: "Ajouter un Nouvel Hôtel",
+                modalEditTitle: "Modifier l'Hôtel",
+                nameLabel: "Nom de l'hôtel",
+                cityLabel: "Ville",
+                countryLabel: "Pays",
+                ratingLabel: "Évaluation",
+                siteLabel: "URL du site web",
+                cancel: "Annuler",
+                save: "Enregistrer",
+                edit: "Modifier",
+                delete: "Supprimer",
+                confirmTitle: "Confirmation de Suppression",
+                confirmText: "Êtes-vous sûr de vouloir supprimer cet hôtel ? Cette action est irréversible.",
+                deleteBtn: "Supprimer"
+            },
+            ar: {
+                appTitle: "نظام إدارة الفنادق",
+                addHotel: "إضافة فندق",
+                searchPlaceholder: "ابحث عن فنادق...",
+                filterLabel: "تصفية حسب:",
+                allCountries: "كل الدول",
+                allCities: "كل المدن",
+                allRatings: "كل التقييمات",
+                nameHeader: "الاسم",
+                cityHeader: "المدينة",
+                countryHeader: "الدولة",
+                ratingHeader: "التقييم",
+                siteHeader: "الموقع",
+                actionsHeader: "الإجراءات",
+                modalAddTitle: "إضافة فندق جديد",
+                modalEditTitle: "تعديل الفندق",
+                nameLabel: "اسم الفندق",
+                cityLabel: "المدينة",
+                countryLabel: "الدولة",
+                ratingLabel: "التقييم",
+                siteLabel: "رابط الموقع",
+                cancel: "إلغاء",
+                save: "حفظ",
+                edit: "تعديل",
+                delete: "حذف",
+                confirmTitle: "تأكيد الحذف",
+                confirmText: "هل أنت متأكد أنك تريد حذف هذا الفندق؟ لا يمكن التراجع عن هذا الإجراء.",
+                deleteBtn: "حذف"
+            }
+        };
+
+        // Initialize the app
+        function init() {
+            renderHotels();
+            setupEventListeners();
+            updateLanguage();
+        }
+
+        // Render hotels table
+        function renderHotels(filteredHotels = null) {
+            const data = filteredHotels || hotels;
+            hotelsTableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="7" style="text-align: center;">No hotels found</td>`;
+                hotelsTableBody.appendChild(row);
+                return;
+            }
+
+            data.forEach(hotel => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${hotel.id}</td>
+                    <td>${hotel.name}</td>
+                    <td>${hotel.city}</td>
+                    <td>${hotel.country}</td>
+                    <td>${'★'.repeat(hotel.rating)}${'☆'.repeat(5 - hotel.rating)}</td>
+                    <td>
+                        ${hotel.site ? `<a href="${hotel.site}" target="_blank">${new URL(hotel.site).hostname}</a>` : 'N/A'}
+                    </td>
+                    <td>
+                        <button class="action-btn btn-edit" data-id="${hotel.id}" title="${translations[currentLanguage].edit}">
+                            <i class="fas fa-edit"></i>
+                            <span class="sr-only">${translations[currentLanguage].edit}</span>
+                        </button>
+                        <button class="action-btn btn-delete" data-id="${hotel.id}" title="${translations[currentLanguage].delete}">
+                            <i class="fas fa-trash-alt"></i>
+                            <span class="sr-only">${translations[currentLanguage].delete}</span>
+                        </button>
+                    </td>
+                `;
+                hotelsTableBody.appendChild(row);
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add hotel button
+            addHotelBtn.addEventListener('click', () => {
+                openHotelModal();
+            });
+
+            // Search input
+            searchInput.addEventListener('input', filterHotels);
+
+            // Filter dropdowns
+            countryFilter.addEventListener('change', filterHotels);
+            cityFilter.addEventListener('change', filterHotels);
+            ratingFilter.addEventListener('change', filterHotels);
+
+            // Modal buttons
+            document.getElementById('close-modal').addEventListener('click', closeHotelModal);
+            document.getElementById('cancel-btn').addEventListener('click', closeHotelModal);
+            document.getElementById('save-btn').addEventListener('click', saveHotel);
+
+            // Confirmation modal buttons
+            document.getElementById('close-confirm-modal').addEventListener('click', closeConfirmModal);
+            document.getElementById('cancel-delete-btn').addEventListener('click', closeConfirmModal);
+            document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
+
+            // Edit/Delete buttons (delegated)
+            hotelsTableBody.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.btn-edit');
+                const deleteBtn = e.target.closest('.btn-delete');
+
+                if (editBtn) {
+                    const id = parseInt(editBtn.dataset.id);
+                    editHotel(id);
+                }
+
+                if (deleteBtn) {
+                    const id = parseInt(deleteBtn.dataset.id);
+                    showDeleteConfirmation(id);
+                }
+            });
+
+            // Language switcher
+            languageSwitcher.addEventListener('change', (e) => {
+                currentLanguage = e.target.value;
+                updateLanguage();
+                renderHotels(); // Re-render table to update action button titles
+            });
+
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === hotelModal) {
+                    closeHotelModal();
+                }
+                if (e.target === confirmModal) {
+                    closeConfirmModal();
+                }
+            });
+        }
+
+        // Filter hotels based on search and filters
+        function filterHotels() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const country = countryFilter.value;
+            const city = cityFilter.value;
+            const rating = ratingFilter.value;
+
+            const filtered = hotels.filter(hotel => {
+                const matchesSearch = hotel.name.toLowerCase().includes(searchTerm) || 
+                                    hotel.city.toLowerCase().includes(searchTerm) || 
+                                    hotel.country.toLowerCase().includes(searchTerm);
+                const matchesCountry = country === '' || hotel.country === country;
+                const matchesCity = city === '' || hotel.city === city;
+                const matchesRating = rating === '' || hotel.rating === parseInt(rating);
+
+                return matchesSearch && matchesCountry && matchesCity && matchesRating;
+            });
+
+            renderHotels(filtered);
+        }
+
+        // Open hotel modal for adding new hotel
+        function openHotelModal() {
+            document.getElementById('modal-title').textContent = translations[currentLanguage].modalAddTitle;
+            hotelForm.reset();
+            document.getElementById('hotel-id').value = '';
+            document.querySelectorAll('.star-rating input').forEach(input => input.checked = false);
+            document.getElementById('save-btn').textContent = translations[currentLanguage].save;
+            hotelModal.style.display = 'block';
+        }
+
+        // Open hotel modal for editing existing hotel
+        function editHotel(id) {
+            const hotel = hotels.find(h => h.id === id);
+            if (!hotel) return;
+
+            document.getElementById('modal-title').textContent = translations[currentLanguage].modalEditTitle;
+            document.getElementById('hotel-id').value = hotel.id;
+            document.getElementById('hotel-name').value = hotel.name;
+            document.getElementById('hotel-city').value = hotel.city;
+            document.getElementById('hotel-country').value = hotel.country;
+            document.getElementById('hotel-site').value = hotel.site || '';
+            document.querySelector(`input[name="rating"][value="${hotel.rating}"]`).checked = true;
+            document.getElementById('save-btn').textContent = translations[currentLanguage].save;
+            hotelModal.style.display = 'block';
+        }
+
+        // Close hotel modal
+        function closeHotelModal() {
+            hotelModal.style.display = 'none';
+        }
+
+        // Save hotel (add or update)
+        function saveHotel(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('hotel-id').value;
+            const name = document.getElementById('hotel-name').value.trim();
+            const city = document.getElementById('hotel-city').value.trim();
+            const country = document.getElementById('hotel-country').value;
+            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+            const site = document.getElementById('hotel-site').value.trim();
+
+            // Simple validation
+            if (!name || !city || !country || !rating) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Validate URL if provided
+            if (site && !isValidUrl(site)) {
+                alert('Please enter a valid website URL (e.g. https://example.com)');
+                return;
+            }
+
+            const hotelData = {
+                id: id ? parseInt(id) : generateId(),
+                name,
+                city,
+                country,
+                rating: parseInt(rating),
+                site: site || null
+            };
+
+            if (id) {
+                // Update existing hotel
+                const index = hotels.findIndex(h => h.id === parseInt(id));
+                if (index !== -1) {
+                    hotels[index] = hotelData;
+                }
+            } else {
+                // Add new hotel
+                hotels.push(hotelData);
+            }
+
+            renderHotels();
+            closeHotelModal();
+        }
+
+        // Helper function to validate URLs
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Generate new ID for hotel
+        function generateId() {
+            return hotels.length > 0 ? Math.max(...hotels.map(h => h.id)) + 1 : 1;
+        }
+
+        // Show delete confirmation modal
+        function showDeleteConfirmation(id) {
+            const hotel = hotels.find(h => h.id === id);
+            if (!hotel) return;
+
+            document.getElementById('confirm-title').textContent = translations[currentLanguage].confirmTitle;
+            document.getElementById('confirm-text').textContent = translations[currentLanguage].confirmText;
+            document.getElementById('confirm-delete-btn').textContent = translations[currentLanguage].deleteBtn;
+            document.getElementById('confirm-delete-btn').dataset.id = id;
+            confirmModal.style.display = 'block';
+        }
+
+        // Close confirmation modal
+        function closeConfirmModal() {
+            confirmModal.style.display = 'none';
+        }
+
+        // Confirm and execute deletion
+        function confirmDelete() {
+            const id = parseInt(this.dataset.id);
+            hotels = hotels.filter(hotel => hotel.id !== id);
+            renderHotels();
+            closeConfirmModal();
+        }
+
+        // Update UI language
+        function updateLanguage() {
+            const lang = translations[currentLanguage];
+            
+            // Update document direction
+            if (currentLanguage === 'ar') {
+                document.documentElement.lang = 'ar';
+                document.documentElement.dir = 'rtl';
+            } else {
+                document.documentElement.lang = currentLanguage;
+                document.documentElement.dir = 'ltr';
+            }
+            
+            // Update app title
+            document.getElementById('app-title').textContent = lang.appTitle;
+            
+            // Update buttons and labels
+            document.getElementById('add-hotel-text').textContent = lang.addHotel;
+            document.getElementById('search-input').placeholder = lang.searchPlaceholder;
+            document.getElementById('filter-label').textContent = lang.filterLabel;
+            document.getElementById('country-filter').querySelector('option[value=""]').textContent = lang.allCountries;
+            document.getElementById('city-filter').querySelector('option[value=""]').textContent = lang.allCities;
+            document.getElementById('rating-filter').querySelector('option[value=""]').textContent = lang.allRatings;
+            
+            // Update table headers
+            document.getElementById('name-header').textContent = lang.nameHeader;
+            document.getElementById('city-header').textContent = lang.cityHeader;
+            document.getElementById('country-header').textContent = lang.countryHeader;
+            document.getElementById('rating-header').textContent = lang.ratingHeader;
+            document.getElementById('site-header').textContent = lang.siteHeader;
+            document.getElementById('actions-header').textContent = lang.actionsHeader;
+            
+            // Update form labels
+            document.getElementById('name-label').textContent = lang.nameLabel;
+            document.getElementById('city-label').textContent = lang.cityLabel;
+            document.getElementById('country-label').textContent = lang.countryLabel;
+            document.getElementById('rating-label').textContent = lang.ratingLabel;
+            document.getElementById('site-label').textContent = lang.siteLabel;
+            
+            // Update buttons
+            document.getElementById('cancel-btn').textContent = lang.cancel;
+            document.getElementById('save-btn').textContent = lang.save;
+            
+            // Update modal titles
+            const modalTitle = document.getElementById('modal-title');
+            if (modalTitle.textContent.includes('Add') || modalTitle.textContent.includes('Ajouter') || modalTitle.textContent.includes('إضافة')) {
+                modalTitle.textContent = lang.modalAddTitle;
+            } else {
+                modalTitle.textContent = lang.modalEditTitle;
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

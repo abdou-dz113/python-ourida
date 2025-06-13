@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <title>Gestion des Voyages</title>
+    <style>
+    /* ========== VARIABLES & RESET ========== */
+    :root {
+        --primary: #4d90fe;
+        --primary-dark: #357ae8;
+        --secondary: #6c757d;
+        --secondary-dark: #5a6268;
+        --danger: #dc3545;
+        --danger-dark: #c82333;
+        --success: #28a745;
+        --success-dark: #218838;
+        --white: #fff;
+        --light: #f8f9fa;
+        --dark: #333;
+        --gray: #ddd;
+    }
+
+    .lang-switcher {
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        margin-right: 15px;
+        background-color: rgb(247, 243, 239);
+    }
+
+    /* Pour la langue arabe */
+    html[dir="rtl"] body {
+        direction: rtl;
+        text-align: right;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Actions */
+    .action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn-edit {
+        color: var(--primary);
+    }
+
+    .btn-delete {
+        color: var(--danger);
+    }
+
+    /* ========== IMAGES ========== */
+    .travel-image {
+        width: 60px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    /* ========== BASE STYLES ========== */
+    body {
+        font-family: 'Arial', sans-serif;
+        background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80') no-repeat center center fixed;
+        background-size: cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        position: relative;
+    }
+
+    /* ========== LAYOUT ========== */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        width: 95%;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header {
+        padding: 20px 30px;
+        background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+        color: var(--white);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .header h1 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .main-content {
+        padding: 30px;
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+
+    /* ========== SEARCH & FILTERS ========== */
+    .search-filter-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 300px;
+        max-width: 500px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 12px 20px;
+        border: 1px solid var(--gray);
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .search-box input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group label {
+        font-weight: 500;
+        color: #555;
+    }
+
+    .filter-group select {
+        padding: 12px 15px;
+        border: 1px solid var(--gray);
+        border-radius: 6px;
+        background-color: var(--white);
+        font-size: 14px;
+        min-width: 180px;
+    }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-print {
+        color: var(--secondary);
+    }
+    
+    .btn i {
+        margin-right: 8px;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: var(--white);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+    }
+
+    .btn-success {
+        background-color: var(--success);
+        color: var(--white);
+    }
+
+    .btn-success:hover {
+        background-color: var(--success-dark);
+    }
+
+    .btn-secondary {
+        background-color: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--secondary-dark);
+    }
+
+    .btn-danger {
+        background-color: var(--danger);
+        color: var(--white);
+    }
+
+    .btn-danger:hover {
+        background-color: var(--danger-dark);
+    }
+
+    /* ========== TABLE ========== */
+    .table-responsive {
+        overflow-x: auto;
+        margin-bottom: 25px;
+        border-radius: 6px;
+        border: 1px solid #eee;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    th {
+        background-color: var(--light);
+        font-weight: 600;
+        color: #555;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+    }
+
+    tr:hover {
+        background-color: var(--light);
+    }
+
+    /* ========== STATUS BADGES ========== */
+    .status {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-inactive {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .status-archived {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+
+    /* ========== MODALS ========== */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow-y: auto;
+    }
+
+    .modal-content {
+        background-color: var(--white);
+        margin: 50px auto;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 600px;
+        animation: modalopen 0.3s;
+    }
+
+    @keyframes modalopen {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #777;
+        line-height: 1;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* ========== FORM ELEMENTS ========== */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #555;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--gray);
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+    }
+
+    .image-preview {
+        margin-top: 10px;
+        width: 100px;
+        height: 100px;
+        border: 1px dashed var(--gray);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .image-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .search-filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .search-box {
+            max-width: 100%;
+        }
+        
+        .filter-group {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+        
+        .modal-content {
+            width: 95%;
+            margin: 20px auto;
+        }
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .container, .container * {
+            visibility: visible;
+        }
+        .container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: auto;
+            background: white;
+            box-shadow: none;
+        }
+        .action-btn {
+            display: none;
+        }
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Gestion des Voyages</h1>
+            <div>
+                <select id="langSwitcher" class="lang-switcher">
+                    <option value="fr">FR</option>
+                    <option value="ar">AR</option>
+                    <option value="en">EN</option>
+                </select>
+                <button id="addTravelBtn" class="btn btn-success">
+                    <i class="fas fa-plus"></i>Créer un voyage
+                </button>
+            </div>
+        </div>
+            
+        <div class="main-content">
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Rechercher voyages..." aria-label="Rechercher des voyages">
+                </div>
+                <div class="filter-group">
+                    <label for="filterSelect">Filtrer par:</label>
+                    <select id="filterSelect" aria-label="Options de filtrage">
+                        <option value="all">Tous</option>
+                        <option value="active">Actifs</option>
+                        <option value="archived">Archivés</option>
+                    </select>
+                </div>
+            </div>
+    
+            <div class="table-responsive">
+                <table id="travelsTable" aria-describedby="tableDescription">
+                    <caption id="tableDescription" class="sr-only">Liste des voyages disponibles</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Destination</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Dates</th>
+                            <th scope="col">Prix</th>
+                            <th scope="col">Places</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="travelsTableBody">
+                        <!-- Contenu dynamique -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <nav class="pagination" id="pagination" aria-label="Pagination">
+                <!-- Pagination dynamique -->
+            </nav>
+        </div>
+    </div>
+    
+    <!-- Modal voyage -->
+    <div id="travelModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Ajouter un Voyage</h2>
+                <button class="close-btn" aria-label="Fermer la fenêtre">&times;</button>
+            </div>
+            <form id="travelForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="travelId" name="travelId">
+                    
+                    <div class="form-group">
+                        <label for="destination">Destination</label>
+                        <input type="text" id="destination" name="destination" required aria-required="true">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="travelType">Type de voyage</label>
+                        <select id="travelType" name="travelType" required>
+                            <option value="">Sélectionner un type</option>
+                            <option value="touristique">Touristique</option>
+                            <option value="medicale">Médicale</option>
+                            <option value="omra">Omra</option>
+                            <option value="hejj">Hejj</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="departureDate">Date de départ</label>
+                        <input type="date" id="departureDate" name="departureDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="returnDate">Date de retour</label>
+                        <input type="date" id="returnDate" name="returnDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="price">Prix (DA)</label>
+                        <input type="number" id="price" name="price" min="0" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="totalPlaces">Nombre total de places</label>
+                        <input type="number" id="totalPlaces" name="totalPlaces" min="1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="availablePlaces">Places disponibles</label>
+                        <input type="number" id="availablePlaces" name="availablePlaces" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Statut</label>
+                        <select id="status" name="status" required>
+                            <option value="active">Actif</option>
+                            <option value="archived">Archivé</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="image">Image</label>
+                        <input type="file" id="image" name="image" accept="image/*" aria-describedby="imageHelp">
+                        <small id="imageHelp" class="form-text">Formats acceptés: JPG, PNG (max. 2MB)</small>
+                        <div id="imagePreview" class="image-preview" aria-live="polite"></div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Annuler</button>
+                    <button type="button" class="btn btn-print" onclick="window.print()">
+                        <i class="fas fa-print"></i>Imprimer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal de confirmation -->
+    <div id="confirmModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p id="confirmMessage">Êtes-vous sûr de vouloir supprimer ce voyage?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmDeleteBtn" class="btn btn-danger">Supprimer</button>
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Éléments du DOM
+            const travelTableBody = document.getElementById('travelsTableBody');
+            const addTravelBtn = document.getElementById('addTravelBtn');
+            const travelModal = document.getElementById('travelModal');
+            const confirmModal = document.getElementById('confirmModal');
+            const closeBtn = document.querySelector('.close-btn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const travelForm = document.getElementById('travelForm');
+            const searchInput = document.getElementById('searchInput');
+            const filterSelect = document.getElementById('filterSelect');
+            const imageInput = document.getElementById('image');
+            const imagePreview = document.getElementById('imagePreview');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            const langSwitcher = document.getElementById('langSwitcher');
+            const totalPlacesInput = document.getElementById('totalPlaces');
+            const availablePlacesInput = document.getElementById('availablePlaces');
+            const statusSelect = document.getElementById('status');
+            const modalTitle = document.getElementById('modalTitle');
+            const confirmMessage = document.getElementById('confirmMessage');
+            
+            // Variables d'état
+            let travels = [];
+            let currentTravelId = null;
+            let currentImage = null;
+            let currentLang = 'fr';
+    
+            // Dictionnaires de traduction
+            const translations = {
+                fr: {
+                    appTitle: "Gestion des Voyages",
+                    addTravel: "Ajouter un voyage",
+                    searchPlaceholder: "Rechercher voyages...",
+                    filterLabel: "Filtrer par:",
+                    filterAll: "Tous",
+                    filterActive: "Actifs",
+                    filterArchived: "Archivés",
+                    noResults: "Aucun voyage trouvé",
+                    addTitle: "Ajouter un Voyage",
+                    editTitle: "Modifier le Voyage",
+                    deleteConfirm: "Êtes-vous sûr de vouloir supprimer ce voyage?",
+                    save: "Enregistrer",
+                    cancel: "Annuler",
+                    delete: "Supprimer",
+                    print: "Imprimer",
+                    typePlaceholder: "Sélectionner un type",
+                    typeTourist: "Touristique",
+                    typeMedical: "Médicale",
+                    typeOmra: "Omra",
+                    typeHajj: "Hejj",
+                    statusActive: "Actif",
+                    statusArchived: "Archivé",
+                    tableActions: "Actions",
+                    tableStatus: "Statut",
+                    tablePlaces: "Places",
+                    tablePrice: "Prix",
+                    tableDates: "Dates",
+                    tableType: "Type",
+                    tableDestination: "Destination",
+                    tableImage: "Image"
+                },
+                en: {
+                    appTitle: "Travel Management",
+                    addTravel: "Add travel",
+                    searchPlaceholder: "Search travels...",
+                    filterLabel: "Filter by:",
+                    filterAll: "All",
+                    filterActive: "Active",
+                    filterArchived: "Archived",
+                    noResults: "No travels found",
+                    addTitle: "Add Travel",
+                    editTitle: "Edit Travel",
+                    deleteConfirm: "Are you sure you want to delete this travel?",
+                    save: "Save",
+                    cancel: "Cancel",
+                    delete: "Delete",
+                    print: "Print",
+                    typePlaceholder: "Select a type",
+                    typeTourist: "Tourist",
+                    typeMedical: "Medical",
+                    typeOmra: "Umrah",
+                    typeHajj: "Hajj",
+                    statusActive: "Active",
+                    statusArchived: "Archived",
+                    tableActions: "Actions",
+                    tableStatus: "Status",
+                    tablePlaces: "Places",
+                    tablePrice: "Price",
+                    tableDates: "Dates",
+                    tableType: "Type",
+                    tableDestination: "Destination",
+                    tableImage: "Image"
+                },
+                ar: {
+                    appTitle: "إدارة الرحلات",
+                    addTravel: "إضافة رحلة",
+                    searchPlaceholder: "ابحث عن رحلات...",
+                    filterLabel: "تصفية حسب:",
+                    filterAll: "الكل",
+                    filterActive: "نشطة",
+                    filterArchived: "مؤرشفة",
+                    noResults: "لا توجد رحلات",
+                    addTitle: "إضافة رحلة",
+                    editTitle: "تعديل الرحلة",
+                    deleteConfirm: "هل أنت متأكد من حذف هذه الرحلة؟",
+                    save: "حفظ",
+                    cancel: "إلغاء",
+                    delete: "حذف",
+                    print: "طباعة",
+                    typePlaceholder: "اختر نوعاً",
+                    typeTourist: "سياحية",
+                    typeMedical: "طبية",
+                    typeOmra: "عمرة",
+                    typeHajj: "حج",
+                    statusActive: "نشط",
+                    statusArchived: "مؤرشف",
+                    tableActions: "إجراءات",
+                    tableStatus: "الحالة",
+                    tablePlaces: "الأماكن",
+                    tablePrice: "السعر",
+                    tableDates: "التواريخ",
+                    tableType: "النوع",
+                    tableDestination: "الوجهة",
+                    tableImage: "الصورة"
+                }
+            };
+
+            // Initialisation
+            initLanguage();
+            loadSampleTravels();
+            setupEventListeners();
+            
+            function initLanguage() {
+                const savedLang = localStorage.getItem('travelAppLang');
+                if (savedLang) {
+                    currentLang = savedLang;
+                    langSwitcher.value = currentLang;
+                }
+                
+                if (currentLang === 'ar') {
+                    document.documentElement.dir = 'rtl';
+                }
+            }
+            
+            function loadSampleTravels() {
+                // Données de démonstration
+                travels = [
+                {
+                        id: 1,
+                        destination: "Setif/Costantin",
+                        type: "touristique",
+                        departureDate: "2025-02-06",
+                        returnDate: "2025-02-08",
+                        price: 7500,
+                        totalPlaces: 30,
+                        availablePlaces: 2,
+                        status: "archived",
+                        image: "costantine.jpg"
+                    },
+                    {
+                        id: 2,
+                        destination: "Sharm El Sheikh",
+                        type: "touristique",
+                        departureDate: "2025-06-25",
+                        returnDate: "2025-07-03",
+                        price: 179000,
+                        totalPlaces: 30,
+                        availablePlaces: 11,
+                        status: "active",
+                        image: "Egypt.jpg"
+                    },
+                    {
+                        id: 3,
+                        destination: "Omra",
+                        type: "Omra",
+                        departureDate: "2025-04-05",
+                        returnDate: "2025-04-20",
+                        price: 229000,
+                        totalPlaces: 60,
+                        availablePlaces: 0,
+                        status: "archived",
+                        image: "omra.jpg"
+                    },
+                    {
+                        id: 4,
+                        destination: "Thailande",
+                        type: "touristique",
+                        departureDate: "2025-08-28",
+                        returnDate: "2025-09-09",
+                        price: 179000,
+                        totalPlaces: 20,
+                        availablePlaces: 264999,
+                        status: "active",
+                        image: "23.jpg"
+                    }
+                    
+
+                ];
+                
+                renderTravels();
+            }
+            
+            function renderTravels(filter = 'all', searchTerm = '') {
+                travelTableBody.innerHTML = '';
+                
+                const filteredTravels = travels.filter(travel => {
+                    const matchesFilter = filter === 'all' || travel.status === filter;
+                    const matchesSearch = travel.destination.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                         travel.type.toLowerCase().includes(searchTerm.toLowerCase());
+                    return matchesFilter && matchesSearch;
+                });
+                
+                if (filteredTravels.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="9" style="text-align:center;">${translations[currentLang].noResults}</td>`;
+                    travelTableBody.appendChild(row);
+                    return;
+                }
+                
+                filteredTravels.forEach(travel => {
+                    const row = document.createElement('tr');
+                    
+                    // Calcul automatique du statut si places disponibles = 0
+                    if (travel.availablePlaces === 0 && travel.status !== "archived") {
+                        travel.status = "archived";
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${travel.id}</td>
+                        <td><img src="${travel.image}" alt="${travel.destination}" class="travel-image"></td>
+                        <td>${travel.destination}</td>
+                        <td>${getTypeLabel(travel.type)}</td>
+                        <td>${formatDate(travel.departureDate)} - ${formatDate(travel.returnDate)}</td>
+                        <td>${travel.price.toLocaleString()} DA</td>
+                        <td>${travel.availablePlaces}/${travel.totalPlaces}</td>
+                        <td><span class="status status-${travel.status}">${getStatusLabel(travel.status)}</span></td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="openEditModal(${travel.id})" aria-label="${translations[currentLang].editTitle}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn btn-print" onclick="window.print()" aria-label="${translations[currentLang].print}">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button class="action-btn btn-delete" onclick="openConfirmModal(${travel.id})" aria-label="${translations[currentLang].delete}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    travelTableBody.appendChild(row);
+                });
+            }
+            
+            function getTypeLabel(type) {
+                const types = {
+                    touristique: translations[currentLang].typeTourist,
+                    medicale: translations[currentLang].typeMedical,
+                    omra: translations[currentLang].typeOmra,
+                    hejj: translations[currentLang].typeHajj
+                };
+                return types[type] || type;
+            }
+            
+            function getStatusLabel(status) {
+                const statuses = {
+                    active: translations[currentLang].statusActive,
+                    archived: translations[currentLang].statusArchived
+                };
+                return statuses[status] || status;
+            }
+            
+            function formatDate(dateString) {
+                const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                return new Date(dateString).toLocaleDateString(currentLang, options);
+            }
+            
+            function setupEventListeners() {
+                // Changement de langue
+                langSwitcher.addEventListener('change', function() {
+                    currentLang = this.value;
+                    localStorage.setItem('travelAppLang', currentLang);
+                    
+                    if (currentLang === 'ar') {
+                        document.documentElement.dir = 'rtl';
+                    } else {
+                        document.documentElement.dir = 'ltr';
+                    }
+                    
+                    // Mettre à jour les textes de l'interface
+                    updateUITexts();
+                    renderTravels();
+                });
+                
+                // Gestion des places disponibles
+                totalPlacesInput.addEventListener('change', function() {
+                    availablePlacesInput.max = this.value;
+                    if (parseInt(availablePlacesInput.value) > parseInt(this.value)) {
+                        availablePlacesInput.value = this.value;
+                    }
+                });
+                
+                // Mise à jour automatique du statut si places disponibles = 0
+                availablePlacesInput.addEventListener('change', function() {
+                    if (parseInt(this.value) === 0) {
+                        statusSelect.value = "archived";
+                    } else if (statusSelect.value === "archived") {
+                        statusSelect.value = "active";
+                    }
+                });
+                
+                // Ouvrir le modal d'ajout
+                addTravelBtn.addEventListener('click', () => {
+                    currentTravelId = null;
+                    currentImage = null;
+                    modalTitle.textContent = translations[currentLang].addTitle;
+                    travelForm.reset();
+                    imagePreview.innerHTML = '';
+                    travelModal.style.display = 'block';
+                });
+                
+                // Fermer les modals
+                closeBtn.addEventListener('click', () => travelModal.style.display = 'none');
+                cancelBtn.addEventListener('click', () => travelModal.style.display = 'none');
+                cancelDeleteBtn.addEventListener('click', () => confirmModal.style.display = 'none');
+                
+                // Clic en dehors du modal pour fermer
+                window.addEventListener('click', (e) => {
+                    if (e.target === travelModal) travelModal.style.display = 'none';
+                    if (e.target === confirmModal) confirmModal.style.display = 'none';
+                });
+                
+                // Gestion de l'image
+                imageInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        if (file.size > 2 * 1024 * 1024) {
+                            alert("La taille de l'image ne doit pas dépasser 2MB");
+                            this.value = '';
+                            return;
+                        }
+                        
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            currentImage = event.target.result;
+                            imagePreview.innerHTML = `<img src="${currentImage}" alt="Preview">`;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                
+                // Soumission du formulaire
+                travelForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const travelData = {
+                        destination: document.getElementById('destination').value,
+                        type: document.getElementById('travelType').value,
+                        departureDate: document.getElementById('departureDate').value,
+                        returnDate: document.getElementById('returnDate').value,
+                        price: parseFloat(document.getElementById('price').value),
+                        totalPlaces: parseInt(document.getElementById('totalPlaces').value),
+                        availablePlaces: parseInt(document.getElementById('availablePlaces').value),
+                        status: document.getElementById('status').value,
+                        image: currentImage || 'https://via.placeholder.com/500x300?text=Travel+Image'
+                    };
+                    
+                    // Validation des dates
+                    if (new Date(travelData.departureDate) > new Date(travelData.returnDate)) {
+                        alert("La date de retour doit être après la date de départ");
+                        return;
+                    }
+                    
+                    // Si places disponibles = 0, forcer le statut "archived"
+                    if (travelData.availablePlaces === 0) {
+                        travelData.status = "archived";
+                    }
+                    
+                    if (currentTravelId) {
+                        // Modification
+                        const index = travels.findIndex(t => t.id === currentTravelId);
+                        if (index !== -1) {
+                            travels[index] = { ...travels[index], ...travelData };
+                        }
+                    } else {
+                        // Ajout
+                        const newId = travels.length > 0 ? Math.max(...travels.map(t => t.id)) + 1 : 1;
+                        travels.push({ id: newId, ...travelData });
+                    }
+                    
+                    travelModal.style.display = 'none';
+                    renderTravels();
+                });
+                
+                // Confirmation de suppression
+                confirmDeleteBtn.addEventListener('click', function() {
+                    if (currentTravelId) {
+                        travels = travels.filter(travel => travel.id !== currentTravelId);
+                        renderTravels();
+                    }
+                    confirmModal.style.display = 'none';
+                });
+                
+                // Filtre
+                filterSelect.addEventListener('change', function() {
+                    renderTravels(this.value, searchInput.value);
+                });
+                
+                // Recherche
+                searchInput.addEventListener('input', function() {
+                    renderTravels(filterSelect.value, this.value);
+                });
+            }
+            
+            function updateUITexts() {
+                // Mettre à jour tous les textes de l'interface
+                document.querySelector('title').textContent = translations[currentLang].appTitle;
+                document.querySelector('.header h1').textContent = translations[currentLang].appTitle;
+                addTravelBtn.innerHTML = `<i class="fas fa-plus"></i>${translations[currentLang].addTravel}`;
+                searchInput.placeholder = translations[currentLang].searchPlaceholder;
+                document.querySelector('.filter-group label').textContent = translations[currentLang].filterLabel + ':';
+                
+                // Mettre à jour les options de filtre
+                const filterOptions = filterSelect.querySelectorAll('option');
+                filterOptions[0].textContent = translations[currentLang].filterAll;
+                filterOptions[1].textContent = translations[currentLang].filterActive;
+                filterOptions[2].textContent = translations[currentLang].filterArchived;
+                
+                // Mettre à jour le formulaire
+                document.querySelector('label[for="destination"]').textContent = translations[currentLang].tableDestination;
+                document.querySelector('label[for="travelType"]').textContent = translations[currentLang].tableType;
+                document.querySelector('label[for="departureDate"]').textContent = translations[currentLang].tableDates.split('/')[0];
+                document.querySelector('label[for="returnDate"]').textContent = translations[currentLang].tableDates.split('/')[1] || translations[currentLang].tableDates;
+                document.querySelector('label[for="price"]').textContent = translations[currentLang].tablePrice;
+                document.querySelector('label[for="totalPlaces"]').textContent = translations[currentLang].tablePlaces;
+                document.querySelector('label[for="availablePlaces"]').textContent = translations[currentLang].tablePlaces;
+                document.querySelector('label[for="status"]').textContent = translations[currentLang].tableStatus;
+                document.querySelector('label[for="image"]').textContent = translations[currentLang].tableImage;
+                
+                // Mettre à jour les options du type de voyage
+                const typeOptions = document.getElementById('travelType').querySelectorAll('option');
+                typeOptions[0].textContent = translations[currentLang].typePlaceholder;
+                typeOptions[1].textContent = translations[currentLang].typeTourist;
+                typeOptions[2].textContent = translations[currentLang].typeMedical;
+                typeOptions[3].textContent = translations[currentLang].typeOmra;
+                typeOptions[4].textContent = translations[currentLang].typeHajj;
+                
+                // Mettre à jour les options du statut
+                const statusOptions = document.getElementById('status').querySelectorAll('option');
+                statusOptions[0].textContent = translations[currentLang].statusActive;
+                statusOptions[1].textContent = translations[currentLang].statusArchived;
+                
+                // Mettre à jour les boutons
+                document.querySelector('.modal-footer button[type="submit"]').textContent = translations[currentLang].save;
+                document.getElementById('cancelBtn').textContent = translations[currentLang].cancel;
+                document.querySelector('.btn-print').innerHTML = `<i class="fas fa-print"></i>${translations[currentLang].print}`;
+                confirmDeleteBtn.textContent = translations[currentLang].delete;
+                cancelDeleteBtn.textContent = translations[currentLang].cancel;
+                confirmMessage.textContent = translations[currentLang].deleteConfirm;
+            }
+            
+            // Fonctions globales
+            window.openEditModal = function(id) {
+                const travel = travels.find(t => t.id === id);
+                if (!travel) return;
+                
+                currentTravelId = id;
+                currentImage = travel.image;
+                
+                modalTitle.textContent = translations[currentLang].editTitle;
+                document.getElementById('travelId').value = travel.id;
+                document.getElementById('destination').value = travel.destination;
+                document.getElementById('travelType').value = travel.type;
+                document.getElementById('departureDate').value = travel.departureDate;
+                document.getElementById('returnDate').value = travel.returnDate;
+                document.getElementById('price').value = travel.price;
+                document.getElementById('totalPlaces').value = travel.totalPlaces;
+                document.getElementById('availablePlaces').value = travel.availablePlaces;
+                document.getElementById('status').value = travel.status;
+                
+                imagePreview.innerHTML = currentImage ? 
+                    `<img src="${currentImage}" alt="Preview">` : 
+                    '';
+                
+                travelModal.style.display = 'block';
+            };
+            
+            window.openConfirmModal = function(id) {
+                currentTravelId = id;
+                confirmMessage.textContent = translations[currentLang].deleteConfirm;
+                confirmModal.style.display = 'block';
+            };
+        });
+    </script>
+</body>
+</html>

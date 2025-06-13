@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="fr" id="main-html">
+<head>
+    <meta charset="UTF-8" id="meta-charset">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" id="meta-viewport">
+	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <title id="page-title">Gestion de Transport</title>
+    <style>
+    /* ========== VARIABLES & RESET ========== */
+:root {
+  --primary: #4d90fe;
+  --primary-dark: #357ae8;
+  --secondary: #6c757d;
+  --secondary-dark: #5a6268;
+  --danger: #dc3545;
+  --danger-dark: #c82333;
+  --success: #28a745;
+  --success-dark: #218838;
+  --white: #fff;
+  --light: #f8f9fa;
+  --dark: #333;
+  --gray: #ddd;
+}
+.lang-switcher {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-right: 15px;
+    background-color: rgb(247, 243, 239);
+}
+
+/* Pour la langue arabe */
+html[dir="rtl"] body {
+    direction: rtl;
+    text-align: right;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+/* Actions */
+.action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .btn-edit {
+            color: #4d90fe;
+        }
+        
+        .btn-delete {
+            color: #dc3545;
+        }
+        .btn-print {
+            color: #6c757d; /* Gris pour impression */
+        }
+
+/* ========== IMAGES ========== */
+.travel-image {
+        width: 60px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+/* ========== BASE STYLES ========== */
+body {
+      font-family: 'Arial', sans-serif;
+      background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      position: relative;
+    }
+
+/* ========== LAYOUT ========== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background:  rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.header {
+  padding: 20px 30px;
+  background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+  color: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.main-content {
+  padding: 30px;
+}
+
+/* ========== SEARCH & FILTERS ========== */
+.search-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 20px;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.search-box input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-group label {
+  font-weight: 500;
+  color: #555;
+}
+
+.filter-group select {
+  padding: 12px 15px;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  background-color: var(--white);
+  font-size: 14px;
+  min-width: 180px;
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn i {
+  margin-right: 8px;
+}
+
+.btn-primary {
+            background-color: #4d90fe;
+            color: white;
+        }
+        
+.btn-primary:hover {
+    background-color: #357ae8;
+}
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+.btn-secondary {
+  background-color: var(--secondary);
+  color: var(--white);
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-dark);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: var(--white);
+}
+
+.btn-danger:hover {
+  background-color: var(--danger-dark);
+}
+
+/* ========== TABLE ========== */
+.table-responsive {
+  overflow-x: auto;
+  margin-bottom: 25px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+th, td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background-color: var(--light);
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+tr:hover {
+  background-color: var(--light);
+}
+
+/* ========== STATUS BADGES ========== */
+.status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-archived {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+/* ========== MODALS ========== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background-color: var(--white);
+  margin: 50px auto;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+  animation: modalopen 0.3s;
+}
+
+@keyframes modalopen {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #777;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ========== FORM ELEMENTS ========== */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+}
+
+.image-preview {
+  margin-top: 10px;
+  width: 100px;
+  height: 100px;
+  border: 1px dashed var(--gray);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .search-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-box {
+    max-width: 100%;
+  }
+  
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 20px auto;
+  }
+}
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" id="font-awesome-css">
+</head>
+<body id="main-body">
+    <div class="container" id="main-container">
+        <div class="header" id="main-header">
+            <h1 id="main-title">Gestion des Transports</h1>
+            <div id="header-actions">
+                <select id="langSwitcher" class="lang-switcher">
+                    <option value="fr">Français</option>
+                    <option value="en">English</option>
+                    <option value="ar">العربية</option>
+                </select>
+                <button id="addTransportBtn" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Ajouter un transport
+                </button>
+            </div>
+        </div>
+            
+        <div class="main-content" id="content-area">
+            <div class="search-filter-bar" id="search-filter-bar">
+                <div class="search-box" id="search-box">
+                    <input type="text" id="searchInput" placeholder="Rechercher transports..." aria-label="Rechercher des transports">
+                </div>
+                <div class="filter-group" id="filter-group">
+                    <label for="filterSelect" id="filter-label">Filtrer par type:</label>
+                    <select id="filterSelect" aria-label="Options de filtrage">
+                        <option value="all">Tous</option>
+                        <option value="bus">Bus</option>
+                        <option value="voiture">Voiture</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive" id="table-container">
+                <table id="transportsTable" aria-describedby="tableDescription">
+                    <caption id="tableDescription" class="sr-only">Liste des transports disponibles</caption>
+                    <thead id="table-header">
+                        <tr id="header-row">
+                            <th scope="col">ID</th>
+                            <th scope="col" id="col-societe">Nom Societe</th>
+                            <th scope="col" id="col-tel">Tél</th>
+                            <th scope="col" id="col-type">Type</th>
+                            <th scope="col" id="col-marque">Marque</th>
+                            <th scope="col" id="col-matricule">Matricule</th>
+                            <th scope="col" id="col-capacite">Capacité</th>
+                            <th scope="col" id="col-prix">Prix</th>
+                            <th scope="col" id="col-chauffeur">Chauffeur</th>
+                            <th scope="col" id="col-tel-chauffeur">Tél chauffeur</th>
+                            <th scope="col" id="col-num-permis">Num_Permis</th>
+                            <th scope="col" id="col-date-depart">Date Départ</th>
+                            <th scope="col" id="col-temps-depart">Temps Départ</th>
+                            <th scope="col" id="col-date-retour">Date Retour</th>
+                            <th scope="col" id="col-temps-retour">Temps Retour</th>
+                            <th scope="col" id="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transportsTableBody">
+                        <!-- Contenu dynamique -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <nav class="pagination" id="pagination" aria-label="Pagination">
+                <!-- Pagination dynamique -->
+            </nav>
+        </div>
+    </div>
+
+    <!-- Modal transport -->
+    <div id="transportModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content" id="transport-modal-content">
+            <div class="modal-header" id="transport-modal-header">
+                <h2 id="modalTitle">Ajouter un transport</h2>
+                <button class="close-btn" aria-label="Fermer la fenêtre" id="close-transport-modal">&times;</button>
+            </div>
+            <form id="transportForm" enctype="multipart/form-data" method="POST" action="/add-transport">
+
+                <div class="modal-body" id="transport-modal-body">
+                    <input type="hidden" id="transportId" name="transportId">
+                    
+                    <div class="form-row" id="form-row-1">
+                        <div class="form-group" id="nom-societe-group">
+                            <label for="nomSociete" id="nom-societe-label">Nom Société</label>
+                            <input type="text" id="nomSociete" name="nomSociete" required aria-required="true">
+                        </div>
+                        
+                        <div class="form-group" id="telephone-group">
+                            <label for="telephone" id="telephone-label">Téléphone</label>
+                            <input type="tel" id="telephone" name="telephone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" id="form-row-2">
+                        <div class="form-group" id="type-transport-group">
+                            <label for="typeTransport" id="type-transport-label">Type de transport</label>
+                            <select id="typeTransport" name="typeTransport" required>
+                                <option value="">Sélectionner un type</option>
+                                <option value="bus">Bus</option>
+                                <option value="voiture">Voiture</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="marqueGroup">
+                            <label for="marque" id="marque-label">Marque</label>
+                            <input type="text" id="marque" name="marque">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" id="form-row-3">
+                        <div class="form-group" id="matriculeGroup">
+                            <label for="matricule" id="matricule-label">Matricule</label>
+                            <input type="text" id="matricule" name="matricule">
+                        </div>
+                        
+                        <div class="form-group" id="capacite-group">
+                            <label for="capacite" id="capacite-label">Capacité</label>
+                            <input type="number" id="capacite" name="capacite" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" id="form-row-4">
+                        <div class="form-group" id="prix-group">
+                            <label for="prix" id="prix-label">Prix (DA)</label>
+                            <input type="number" id="prix" name="prix" min="0" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group" id="date-depart-group">
+                            <label for="dateDepart" id="date-depart-label">Date Départ</label>
+                            <input type="date" id="dateDepart" name="dateDepart" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" id="form-row-5">
+                        <div class="form-group" id="temps-depart-group">
+                            <label for="tempsDepart" id="temps-depart-label">Temps Départ</label>
+                            <input type="time" id="tempsDepart" name="tempsDepart" required>
+                        </div>
+                        
+                        <div class="form-group" id="date-retour-group">
+                            <label for="dateRetour" id="date-retour-label">Date Retour</label>
+                            <input type="date" id="dateRetour" name="dateRetour" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" id="form-row-6">
+                        <div class="form-group" id="temps-retour-group">
+                            <label for="tempsRetour" id="temps-retour-label">Temps Retour</label>
+                            <input type="time" id="tempsRetour" name="tempsRetour" required>
+                        </div>
+                        
+                        <div class="form-group" id="chauffeur-group">
+                            <label for="chauffeur" id="chauffeur-label">Chauffeur</label>
+                            <input type="text" id="chauffeur" name="chauffeur" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" id="form-row-7">
+                        <div class="form-group" id="tel-chauffeur-group">
+                            <label for="telChauffeur" id="tel-chauffeur-label">Tél chauffeur</label>
+                            <input type="tel" id="telChauffeur" name="telChauffeur" required>
+                        </div>
+                        
+                        <div class="form-group" id="num-permis-group">
+                            <label for="numPermis" id="num-permis-label">Numéro Permis</label>
+                            <input type="text" id="numPermis" name="numPermis" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer" id="transport-modal-footer">
+                    <button type="submit" class="btn btn-primary" id="save-transport-btn">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation -->
+    <div id="confirmModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <div class="modal-content" id="confirm-modal-content">
+            <div class="modal-body" id="confirm-modal-body">
+                <p id="confirmTitle">Êtes-vous sûr de vouloir supprimer ce transport?</p>
+            </div>
+            <div class="modal-footer" id="confirm-modal-footer">
+                <button id="confirmDeleteBtn" class="btn btn-danger">Supprimer</button>
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <script id="main-script">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Données de démonstration
+            let transports = [
+                {
+                    id: 1,
+                    nomSociete: "ENGTP",
+                    telephone: "02988663536",
+                    typeTransport: "bus",
+                    marque: "higer",
+                    matricule: "045708 419 03",
+                    capacite: 50,
+                    prix: 25000,
+                    chauffeur: "Mohamed Arbi",
+                    telChauffeur: "0612345678",
+                    numPermis: "PER123456",
+                    dateDepart: "2024-06-15",
+                    tempsDepart: "08:00",
+                    dateRetour: "2025-16-20",
+                    tempsRetour: "18:00"
+                },
+                {
+                    id: 2,
+                    nomSociete: "الرفيق للايجار",
+                    telephone: "0778862827",
+                    typeTransport: "voiture",
+                    marque: "yaris",
+                    matricule: "14257 118 03",
+                    capacite: 4,
+                    prix: 8500,
+                    chauffeur: "Kaddour Saidani",
+                    telChauffeur: "0698765432",
+                    numPermis: "PER654321",
+                    dateDepart: "2025-02-16",
+                    tempsDepart: "09:30",
+                    dateRetour: "2025-02-17",
+                    tempsRetour: "17:00"
+                }
+            ];
+
+            // Éléments du DOM
+            const transportsTableBody = document.getElementById('transportsTableBody');
+            const transportForm = document.getElementById('transportForm');
+            const transportModal = document.getElementById('transportModal');
+            const confirmModal = document.getElementById('confirmModal');
+            const addTransportBtn = document.getElementById('addTransportBtn');
+            const searchInput = document.getElementById('searchInput');
+            const filterSelect = document.getElementById('filterSelect');
+            const langSwitcher = document.getElementById('langSwitcher');
+            const closeBtns = document.querySelectorAll('.close-btn, #cancelBtn, #cancelDeleteBtn');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const typeTransportSelect = document.getElementById('typeTransport');
+            const marqueGroup = document.getElementById('marqueGroup');
+            const matriculeGroup = document.getElementById('matriculeGroup');
+
+            // Variables d'état
+            let currentLanguage = 'fr';
+            let isEditMode = false;
+            let currentTransportId = null;
+            let filteredTransports = [...transports];
+
+            // Traductions
+            const translations = {
+                fr: {
+                    title: "Gestion des Transports",
+                    addTransport: "Ajouter un transport",
+                    searchPlaceholder: "Rechercher transports...",
+                    filterLabel: "Filtrer par type:",
+                    filterAll: "Tous",
+                    filterBus: "Bus",
+                    filterCar: "Voiture",
+                    tableHeaders: {
+                        societe: "Nom Société",
+                        tel: "Tél",
+                        type: "Type",
+                        marque: "Marque",
+                        matricule: "Matricule",
+                        capacite: "Capacité",
+                        prix: "Prix",
+                        chauffeur: "Chauffeur",
+                        telChauffeur: "Tél chauffeur",
+                        numPermis: "Num_Permis",
+                        dateDepart: "Date Départ",
+                        tempsDepart: "Temps Départ",
+                        dateRetour: "Date Retour",
+                        tempsRetour: "Temps Retour",
+                        actions: "Actions"
+                    },
+                    modalTitleAdd: "Ajouter un transport",
+                    modalTitleEdit: "Modifier un transport",
+                    formLabels: {
+                        nomSociete: "Nom Société",
+                        telephone: "Téléphone",
+                        typeTransport: "Type de transport",
+                        marque: "Marque",
+                        matricule: "Matricule",
+                        capacite: "Capacité",
+                        prix: "Prix (DA)",
+                        dateDepart: "Date Départ",
+                        tempsDepart: "Temps Départ",
+                        dateRetour: "Date Retour",
+                        tempsRetour: "Temps Retour",
+                        chauffeur: "Chauffeur",
+                        telChauffeur: "Tél chauffeur",
+                        numPermis: "Numéro Permis"
+                    },
+                    typeOptions: {
+                        select: "Sélectionner un type",
+                        bus: "Bus",
+                        voiture: "Voiture"
+                    },
+                    buttons: {
+                        save: "Enregistrer",
+                        cancel: "Annuler",
+                        edit: "Modifier",
+                        delete: "Supprimer",
+                        print: "Imprimer",
+                        confirmDelete: "Supprimer",
+                        close: "Fermer"
+                    },
+                    confirmDelete: "Êtes-vous sûr de vouloir supprimer ce transport?"
+                },
+                en: {
+                    title: "Transport Management",
+                    addTransport: "Add transport",
+                    searchPlaceholder: "Search transports...",
+                    filterLabel: "Filter by type:",
+                    filterAll: "All",
+                    filterBus: "Bus",
+                    filterCar: "Car",
+                    tableHeaders: {
+                        societe: "Company Name",
+                        tel: "Phone",
+                        type: "Type",
+                        marque: "Brand",
+                        matricule: "License Plate",
+                        capacite: "Capacity",
+                        prix: "Price",
+                        chauffeur: "Driver",
+                        telChauffeur: "Driver Phone",
+                        numPermis: "License Number",
+                        dateDepart: "Departure Date",
+                        tempsDepart: "Departure Time",
+                        dateRetour: "Return Date",
+                        tempsRetour: "Return Time",
+                        actions: "Actions"
+                    },
+                    modalTitleAdd: "Add transport",
+                    modalTitleEdit: "Edit transport",
+                    formLabels: {
+                        nomSociete: "Company Name",
+                        telephone: "Phone",
+                        typeTransport: "Transport Type",
+                        marque: "Brand",
+                        matricule: "License Plate",
+                        capacite: "Capacity",
+                        prix: "Price (DA)",
+                        dateDepart: "Departure Date",
+                        tempsDepart: "Departure Time",
+                        dateRetour: "Return Date",
+                        tempsRetour: "Return Time",
+                        chauffeur: "Driver",
+                        telChauffeur: "Driver Phone",
+                        numPermis: "License Number"
+                    },
+                    typeOptions: {
+                        select: "Select a type",
+                        bus: "Bus",
+                        car: "Car"
+                    },
+                    buttons: {
+                        save: "Save",
+                        cancel: "Cancel",
+                        edit: "Edit",
+                        delete: "Delete",
+                        print: "Print",
+                        confirmDelete: "Delete",
+                        close: "Close"
+                    },
+                    confirmDelete: "Are you sure you want to delete this transport?"
+                },
+                ar: {
+                    title: "إدارة النقل",
+                    addTransport: "إضافة نقل",
+                    searchPlaceholder: "ابحث عن وسائل النقل...",
+                    filterLabel: "تصفية حسب النوع:",
+                    filterAll: "الكل",
+                    filterBus: "حافلة",
+                    filterCar: "سيارة",
+                    tableHeaders: {
+                        societe: "اسم الشركة",
+                        tel: "هاتف",
+                        type: "النوع",
+                        marque: "الماركة",
+                        matricule: "لوحة التسجيل",
+                        capacite: "السعة",
+                        prix: "السعر",
+                        chauffeur: "السائق",
+                        telChauffeur: "هاتف السائق",
+                        numPermis: "رقم الرخصة",
+                        dateDepart: "تاريخ المغادرة",
+                        tempsDepart: "وقت المغادرة",
+                        dateRetour: "تاريخ العودة",
+                        tempsRetour: "وقت العودة",
+                        actions: "الإجراءات"
+                    },
+                    modalTitleAdd: "إضافة نقل",
+                    modalTitleEdit: "تعديل نقل",
+                    formLabels: {
+                        nomSociete: "اسم الشركة",
+                        telephone: "هاتف",
+                        typeTransport: "نوع النقل",
+                        marque: "الماركة",
+                        matricule: "لوحة التسجيل",
+                        capacite: "السعة",
+                        prix: "السعر (دج)",
+                        dateDepart: "تاريخ المغادرة",
+                        tempsDepart: "وقت المغادرة",
+                        dateRetour: "تاريخ العودة",
+                        tempsRetour: "وقت العودة",
+                        chauffeur: "السائق",
+                        telChauffeur: "هاتف السائق",
+                        numPermis: "رقم الرخصة"
+                    },
+                    typeOptions: {
+                        select: "اختر نوعًا",
+                        bus: "حافلة",
+                        car: "سيارة"
+                    },
+                    buttons: {
+                        save: "حفظ",
+                        cancel: "إلغاء",
+                        edit: "تعديل",
+                        delete: "حذف",
+                        print: "طباعة",
+                        confirmDelete: "حذف",
+                        close: "إغلاق"
+                    },
+                    confirmDelete: "هل أنت متأكد أنك تريد حذف هذا النقل؟"
+                }
+            };
+
+            // Initialisation
+            function init() {
+                renderTransportsTable();
+                setupEventListeners();
+                toggleMarqueMatriculeFields();
+            }
+
+            // Configuration des écouteurs d'événements
+            function setupEventListeners() {
+                addTransportBtn.addEventListener('click', openAddTransportModal);
+                transportForm.addEventListener('submit', handleFormSubmit);
+                searchInput.addEventListener('input', filterTransports);
+                filterSelect.addEventListener('change', filterTransports);
+                langSwitcher.addEventListener('change', changeLanguage);
+                confirmDeleteBtn.addEventListener('click', confirmDeleteTransport);
+                typeTransportSelect.addEventListener('change', toggleMarqueMatriculeFields);
+
+                closeBtns.forEach(btn => {
+                    btn.addEventListener('click', closeModal);
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (e.target === transportModal || e.target === confirmModal) {
+                        closeModal();
+                    }
+                });
+            }
+
+            // Afficher/masquer les champs Marque et Matricule selon le type de transport
+            function toggleMarqueMatriculeFields() {
+                const type = typeTransportSelect.value;
+                if (type === 'voiture') {
+                    marqueGroup.style.display = 'block';
+                    matriculeGroup.style.display = 'block';
+                    document.getElementById('marque').required = true;
+                    document.getElementById('matricule').required = true;
+                } else {
+                    marqueGroup.style.display = 'none';
+                    matriculeGroup.style.display = 'none';
+                    document.getElementById('marque').required = false;
+                    document.getElementById('matricule').required = false;
+                }
+            }
+
+            // Rendu du tableau des transports
+           function renderTransportsTable() {
+    transportsTableBody.innerHTML = '';
+
+    if (filteredTransports.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="16" class="no-data">${currentLanguage === 'fr' ? 'Aucun transport trouvé' : currentLanguage === 'en' ? 'No transports found' : 'لم يتم العثور على أي نقل'}</td>`;
+        transportsTableBody.appendChild(tr);
+        return;
+    }
+
+    filteredTransports.forEach(transport => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${transport.id}</td>
+            <td>${transport.nomSociete}</td>
+            <td>${transport.telephone}</td>
+            <td>${currentLanguage === 'fr' ? (transport.typeTransport === 'bus' ? 'Bus' : 'Voiture') : 
+                currentLanguage === 'en' ? (transport.typeTransport === 'bus' ? 'Bus' : 'Car') : 
+                (transport.typeTransport === 'bus' ? 'حافلة' : 'سيارة')}</td>
+            <td>${transport.marque || '-'}</td>
+            <td>${transport.matricule || '-'}</td>
+            <td>${transport.capacite}</td>
+            <td>${transport.prix} DA</td>
+            <td>${transport.chauffeur}</td>
+            <td>${transport.telChauffeur}</td>
+            <td>${transport.numPermis}</td>
+            <td>${formatDate(transport.dateDepart)}</td>
+            <td>${transport.tempsDepart}</td>
+            <td>${formatDate(transport.dateRetour)}</td>
+            <td>${transport.tempsRetour}</td>
+            <td class="actions">
+                <button class="btn btn-print" data-id="${transport.id}" title="${translations[currentLanguage].buttons.print}">
+                    <i class="fas fa-print"></i>
+                </button>
+                <button class="btn btn-edit" data-id="${transport.id}" title="${translations[currentLanguage].buttons.edit}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-delete" data-id="${transport.id}" title="${translations[currentLanguage].buttons.delete}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        transportsTableBody.appendChild(tr);
+    });
+
+    // Ajout des écouteurs pour les boutons d'action
+    document.querySelectorAll('.btn-print').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = parseInt(e.currentTarget.getAttribute('data-id'));
+            printTransport(id);
+        });
+    });
+
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = parseInt(e.currentTarget.getAttribute('data-id'));
+            openEditTransportModal(id);
+        });
+    });
+
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = parseInt(e.currentTarget.getAttribute('data-id'));
+            openDeleteConfirmModal(id);
+        });
+    });
+
+
+                // Ajout des écouteurs pour les boutons d'action
+                document.querySelectorAll('.btn-print').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = parseInt(e.currentTarget.getAttribute('data-id'));
+                        printTransport(id);
+                    });
+                });
+
+                document.querySelectorAll('.btn-edit').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = parseInt(e.currentTarget.getAttribute('data-id'));
+                        openEditTransportModal(id);
+                    });
+                });
+
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = parseInt(e.currentTarget.getAttribute('data-id'));
+                        openDeleteConfirmModal(id);
+                    });
+                });
+            }
+
+            // Fonction pour imprimer un transport
+            function printTransport(id) {
+                const transport = transports.find(t => t.id === id);
+                if (!transport) return;
+
+            }
+            
+                // Créer une fenêtre d'impression
+                const printWindow = window.open('', '_blank');
+
+
+            // Formatage de la date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                if (currentLanguage === 'fr') {
+                    return date.toLocaleDateString('fr-FR');
+                } else if (currentLanguage === 'en') {
+                    return date.toLocaleDateString('en-US');
+                } else {
+                    return date.toLocaleDateString('ar-EG');
+                }
+            }
+
+            // Filtrage des transports
+            function filterTransports() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const filterValue = filterSelect.value;
+
+                filteredTransports = transports.filter(transport => {
+                    const matchesSearch = 
+                        transport.nomSociete.toLowerCase().includes(searchTerm) ||
+                        transport.chauffeur.toLowerCase().includes(searchTerm) ||
+                        transport.numPermis.toLowerCase().includes(searchTerm) ||
+                        transport.telephone.includes(searchTerm) ||
+                        transport.telChauffeur.includes(searchTerm) ||
+                        (transport.marque && transport.marque.toLowerCase().includes(searchTerm)) ||
+                        (transport.matricule && transport.matricule.toLowerCase().includes(searchTerm));
+
+                    const matchesFilter = 
+                        filterValue === 'all' || 
+                        (filterValue === 'bus' && transport.typeTransport === 'bus') || 
+                        (filterValue === 'voiture' && transport.typeTransport === 'voiture');
+
+                    return matchesSearch && matchesFilter;
+                });
+
+                renderTransportsTable();
+            }
+
+            // Ouverture du modal d'ajout
+            function openAddTransportModal() {
+                isEditMode = false;
+                currentTransportId = null;
+                document.getElementById('modalTitle').textContent = translations[currentLanguage].modalTitleAdd;
+                transportForm.reset();
+                toggleMarqueMatriculeFields();
+                transportModal.style.display = 'block';
+            }
+
+            // Ouverture du modal d'édition
+            function openEditTransportModal(id) {
+                const transport = transports.find(t => t.id === id);
+                if (!transport) return;
+
+                isEditMode = true;
+                currentTransportId = id;
+                document.getElementById('modalTitle').textContent = translations[currentLanguage].modalTitleEdit;
+                
+                // Remplir le formulaire avec les données du transport
+                document.getElementById('transportId').value = transport.id;
+                document.getElementById('nomSociete').value = transport.nomSociete;
+                document.getElementById('telephone').value = transport.telephone;
+                document.getElementById('typeTransport').value = transport.typeTransport;
+                document.getElementById('marque').value = transport.marque || '';
+                document.getElementById('matricule').value = transport.matricule || '';
+                document.getElementById('capacite').value = transport.capacite;
+                document.getElementById('prix').value = transport.prix;
+                document.getElementById('chauffeur').value = transport.chauffeur;
+                document.getElementById('telChauffeur').value = transport.telChauffeur;
+                document.getElementById('numPermis').value = transport.numPermis;
+                document.getElementById('dateDepart').value = transport.dateDepart;
+                document.getElementById('tempsDepart').value = transport.tempsDepart;
+                document.getElementById('dateRetour').value = transport.dateRetour;
+                document.getElementById('tempsRetour').value = transport.tempsRetour;
+                
+                toggleMarqueMatriculeFields();
+                transportModal.style.display = 'block';
+            }
+
+            // Ouverture du modal de confirmation de suppression
+            function openDeleteConfirmModal(id) {
+                currentTransportId = id;
+                document.getElementById('confirmTitle').textContent = translations[currentLanguage].confirmDelete;
+                confirmModal.style.display = 'block';
+            }
+
+            // Fermeture des modals
+            function closeModal() {
+                transportModal.style.display = 'none';
+                confirmModal.style.display = 'none';
+            }
+
+            // Gestion de la soumission du formulaire
+            function handleFormSubmit(e) {
+                //e.preventDefault();
+                
+                const formData = {
+                    id: isEditMode ? currentTransportId : transports.length > 0 ? Math.max(...transports.map(t => t.id)) + 1 : 1,
+                    nomSociete: document.getElementById('nomSociete').value,
+                    telephone: document.getElementById('telephone').value,
+                    typeTransport: document.getElementById('typeTransport').value,
+                    marque: document.getElementById('marque').value || null,
+                    matricule: document.getElementById('matricule').value || null,
+                    capacite: parseInt(document.getElementById('capacite').value),
+                    prix: parseFloat(document.getElementById('prix').value),
+                    chauffeur: document.getElementById('chauffeur').value,
+                    telChauffeur: document.getElementById('telChauffeur').value,
+                    numPermis: document.getElementById('numPermis').value,
+                    dateDepart: document.getElementById('dateDepart').value,
+                    tempsDepart: document.getElementById('tempsDepart').value,
+                    dateRetour: document.getElementById('dateRetour').value,
+                    tempsRetour: document.getElementById('tempsRetour').value
+                };
+                
+                if (isEditMode) {
+                    // Mise à jour du transport existant
+                    const index = transports.findIndex(t => t.id === currentTransportId);
+                    if (index !== -1) {
+                        transports[index] = formData;
+                    }
+                } else {
+                    // Ajout d'un nouveau transport
+                    transports.push(formData);
+                }
+                
+                renderTransportsTable();
+                closeModal();
+            }
+
+            // Confirmation de suppression
+            function confirmDeleteTransport() {
+                transports = transports.filter(t => t.id !== currentTransportId);
+                renderTransportsTable();
+                closeModal();
+            }
+
+            // Changement de langue
+            function changeLanguage() {
+                currentLanguage = langSwitcher.value;
+                
+                // Changer la direction pour l'arabe
+                if (currentLanguage === 'ar') {
+                    document.documentElement.setAttribute('dir', 'rtl');
+                } else {
+                    document.documentElement.removeAttribute('dir');
+                }
+                
+                // Mettre à jour les textes
+                document.getElementById('main-title').textContent = translations[currentLanguage].title;
+                document.getElementById('addTransportBtn').innerHTML = `<i class="fas fa-plus"></i> ${translations[currentLanguage].addTransport}`;
+                document.getElementById('searchInput').placeholder = translations[currentLanguage].searchPlaceholder;
+                document.getElementById('filter-label').textContent = translations[currentLanguage].filterLabel;
+                
+                // Mettre à jour les options de filtre
+                const filterOptions = document.querySelectorAll('#filterSelect option');
+                filterOptions[0].textContent = translations[currentLanguage].filterAll;
+                filterOptions[1].textContent = translations[currentLanguage].filterBus;
+                filterOptions[2].textContent = translations[currentLanguage].filterCar;
+                
+                // Mettre à jour les en-têtes du tableau
+                const headers = translations[currentLanguage].tableHeaders;
+                document.getElementById('col-societe').textContent = headers.societe;
+                document.getElementById('col-tel').textContent = headers.tel;
+                document.getElementById('col-type').textContent = headers.type;
+                document.getElementById('col-marque').textContent = headers.marque;
+                document.getElementById('col-matricule').textContent = headers.matricule;
+                document.getElementById('col-capacite').textContent = headers.capacite;
+                document.getElementById('col-prix').textContent = headers.prix;
+                document.getElementById('col-chauffeur').textContent = headers.chauffeur;
+                document.getElementById('col-tel-chauffeur').textContent = headers.telChauffeur;
+                document.getElementById('col-num-permis').textContent = headers.numPermis;
+                document.getElementById('col-date-depart').textContent = headers.dateDepart;
+                document.getElementById('col-temps-depart').textContent = headers.tempsDepart;
+                document.getElementById('col-date-retour').textContent = headers.dateRetour;
+                document.getElementById('col-temps-retour').textContent = headers.tempsRetour;
+                document.getElementById('col-actions').textContent = headers.actions;
+                
+                // Mettre à jour les boutons
+                document.getElementById('save-transport-btn').textContent = translations[currentLanguage].buttons.save;
+                document.getElementById('cancelBtn').textContent = translations[currentLanguage].buttons.cancel;
+                
+                // Mettre à jour les labels du formulaire
+                document.getElementById('nom-societe-label').textContent = translations[currentLanguage].formLabels.nomSociete;
+                document.getElementById('telephone-label').textContent = translations[currentLanguage].formLabels.telephone;
+                document.getElementById('type-transport-label').textContent = translations[currentLanguage].formLabels.typeTransport;
+                document.getElementById('marque-label').textContent = translations[currentLanguage].formLabels.marque;
+                document.getElementById('matricule-label').textContent = translations[currentLanguage].formLabels.matricule;
+                document.getElementById('capacite-label').textContent = translations[currentLanguage].formLabels.capacite;
+                document.getElementById('prix-label').textContent = translations[currentLanguage].formLabels.prix;
+                document.getElementById('date-depart-label').textContent = translations[currentLanguage].formLabels.dateDepart;
+                document.getElementById('temps-depart-label').textContent = translations[currentLanguage].formLabels.tempsDepart;
+                document.getElementById('date-retour-label').textContent = translations[currentLanguage].formLabels.dateRetour;
+                document.getElementById('temps-retour-label').textContent = translations[currentLanguage].formLabels.tempsRetour;
+                document.getElementById('chauffeur-label').textContent = translations[currentLanguage].formLabels.chauffeur;
+                document.getElementById('tel-chauffeur-label').textContent = translations[currentLanguage].formLabels.telChauffeur;
+                document.getElementById('num-permis-label').textContent = translations[currentLanguage].formLabels.numPermis;
+                
+                // Mettre à jour les options du type de transport
+                const typeOptions = document.querySelectorAll('#typeTransport option');
+                typeOptions[0].textContent = translations[currentLanguage].typeOptions.select;
+                typeOptions[1].textContent = translations[currentLanguage].typeOptions.bus;
+                typeOptions[2].textContent = currentLanguage === 'en' ? translations[currentLanguage].typeOptions.car : translations[currentLanguage].typeOptions.voiture;
+                
+                // Re-rendre le tableau avec les nouvelles traductions
+                renderTransportsTable();
+            }
+
+            // Initialiser l'application
+            init();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+  <title>Ourida Tour - Voyages en Avion</title>
+  <style>
+    /* كل التنسيقات تبقى كما هي بدون تغيير الحجم */
+    .language-switcher {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 2;
+    }
+
+  
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 100%);
+      z-index: 0;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 650px;
+      background-color: transparent;
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-box {
+      background-color: rgba(255, 165, 0, 0.1);
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      display: none;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+    .form-box.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-box h2 {
+      text-align: center;
+      color: white;
+      font-size: 28px;
+      margin-bottom: 20px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 14px;
+      margin-top: 14px;
+      border: 1px solid rgba(204, 204, 204, 0.5);
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-sizing: border-box;
+    }
+
+    .btn {
+      margin-top: 24px;
+      width: 100%;
+      background-color: rgba(241, 90, 36, 0.9);
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .btn:hover {
+      background-color: #e04b1a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(224, 75, 26, 0.3);
+    }
+
+    .link {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .link a {
+      color: #f15a24;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="language-switcher">
+    <select id="languageSelector" onchange="changeLanguage()">
+      <option value="fr">FR</option>
+      <option value="en">EN</option>
+      <option value="ar">AR</option>
+    </select>
+  </div>
+
+  <!-- Connexion -->
+  <div class="form-box active" id="loginBox">
+  <h2 id="loginTitle">Connexion</h2>
+  <form method="POST" action="/login" id="loginForm">
+  <input type="hidden" name="action" value="login">
+
+ 
+    <input type="email" id="loginEmail" name="email" placeholder="Adresse e-mail" required>
+    <input type="password" id="loginPassword" name="password" placeholder="Mot de passe" required>
+    
+    <button class="btn" type="submit" id="loginBtn">SE CONNECTER</button>
+  </form>
+  <p class="link"><a href="pass.html" id="forgotPassword">Mot de passe oublié ?</a></p>
+
+  <p class="link"><span id="noAccount">Vous n'avez pas de compte ?</span> <a onclick="switchToSignup()" id="createAccount">Créer un compte</a></p>
+
+  {% if error %}
+  <div class="error-message" style="color:red; margin-top: 10px;">{{ error }}</div>
+  {% endif %}
+</div>
+
+<!-- Créer un compte -->
+<form id="signupForm" method="post" action="/login" style="all:unset; display:block;">
+<input type="hidden" name="action" value="register">
+
+<div class="form-box" id="signupBox">
+  <h2 id="signupTitle">Créer un compte</h2>
+  <input type="text"  name="name"id="signupName" placeholder="Nom">
+  <input type="email"  name="email"id="signupEmail" placeholder="Adresse e-mail">
+  <input type="password" name="password" id="signupPassword" placeholder="Mot de passe">
+  
+  <button class="btn" type="submit" id="signupBtn">CRÉER UN COMPTE</button>
+  <p class="link"><span id="haveAccount">Vous avez déjà un compte ?</span> <a onclick="switchToLogin()" id="loginLink">Se connecter</a></p>
+</div>
+</div>
+</form>
+<script>
+function switchToSignup() {
+  document.getElementById("loginBox").classList.remove("active");
+  document.getElementById("signupBox").classList.add("active");
+}
+
+function switchToLogin() {
+  document.getElementById("signupBox").classList.remove("active");
+  document.getElementById("loginBox").classList.add("active");
+}
+
+function login() {
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPassword').value;
+  const role = document.getElementById('loginRole').value;
+  alert(`Tentative de connexion en tant que ${role} avec l'e-mail : ${email}`);
+}
+
+function signup() {
+  const name = document.getElementById('signupName').value;
+  const email = document.getElementById('signupEmail').value;
+  const pass = document.getElementById('signupPassword').value;
+  const role = document.getElementById('signupRole').value;
+  alert(`Création de compte ${role} pour : ${name}`);
+}
+
+
+const translations = {
+  fr: {
+    loginTitle: "Connexion",
+    signupTitle: "Créer un compte",
+    email: "Adresse e-mail",
+    password: "Mot de passe",
+    name: "Nom",
+    loginBtn: "SE CONNECTER",
+    signupBtn: "CRÉER UN COMPTE",
+    forgotPassword: "Mot de passe oublié ?",
+    noAccount: "Vous n'avez pas de compte ?",
+    haveAccount: "Vous avez déjà un compte ?",
+    createAccount: "Créer un compte",
+    loginLink: "Se connecter",
+    roleClient: "Client",
+    roleAdmin: "Admin",
+    roleGuide: "Guide"
+  },
+  en: {
+    loginTitle: "Login",
+    signupTitle: "Create Account",
+    email: "Email Address",
+    password: "Password",
+    name: "Name",
+    loginBtn: "LOG IN",
+    signupBtn: "CREATE ACCOUNT",
+    forgotPassword: "Forgot password?",
+    noAccount: "Don't have an account?",
+    haveAccount: "Already have an account?",
+    createAccount: "Create Account",
+    loginLink: "Login",
+    roleClient: "Client",
+    roleAdmin: "Admin",
+    roleGuide: "Guide"
+  },
+  ar: {
+    loginTitle: "تسجيل الدخول",
+    signupTitle: "إنشاء حساب",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    name: "الاسم",
+    loginBtn: "تسجيل الدخول",
+    signupBtn: "إنشاء حساب",
+    forgotPassword: "هل نسيت كلمة المرور؟",
+    noAccount: "ليس لديك حساب؟",
+    haveAccount: "هل لديك حساب؟",
+    createAccount: "إنشاء حساب",
+    loginLink: "تسجيل الدخول",
+    roleClient: "عميل",
+    roleAdmin: "مسؤول",
+     roleGuide:"المرشد"
+  }
+};
+
+function changeLanguage() {
+  const lang = document.getElementById("languageSelector").value;
+  const t = translations[lang];
+  document.getElementById("loginTitle").innerText = t.loginTitle;
+    document.getElementById("signupTitle").innerText = t.signupTitle;
+    document.getElementById("loginEmail").placeholder = t.email;
+    document.getElementById("signupEmail").placeholder = t.email;
+    document.getElementById("loginPassword").placeholder = t.password;
+    document.getElementById("signupPassword").placeholder = t.password;
+    document.getElementById("signupName").placeholder = t.name;
+    document.getElementById("loginBtn").innerText = t.loginBtn;
+    document.getElementById("signupBtn").innerText = t.signupBtn;
+    document.getElementById("forgotPassword").innerText = t.forgotPassword;
+    document.getElementById("noAccount").innerText = t.noAccount;
+    document.getElementById("haveAccount").innerText = t.haveAccount;
+    document.getElementById("createAccount").innerText = t.createAccount;
+    document.getElementById("loginLink").innerText = t.loginLink;
+    document.getElementById("loginClient").innerText = t.roleClient;
+    document.getElementById("loginAdmin").innerText = t.roleAdmin;
+    document.getElementById("signupClient").innerText = t.roleClient;
+    document.getElementById("signupAdmin").innerText = t.roleAdmin;
+    document.getElementById("loginGuide").innerText = t.roleGuide;
+    document.getElementById("signupGuide").innerText = t.roleGuide;
+
+    if (lang === "ar") {
+      document.body.style.direction = "rtl";
+    } else {
+      document.body.style.direction = "ltr";
+    }
+  }
+</script>
+
+</body>
+</html>

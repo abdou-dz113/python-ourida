@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <title data-fr="Gestion des Clients" data-en="Clients Management" data-ar="إدارة العملاء">Gestion des Clients</title>
+    <style>
+    /* ========== VARIABLES & RESET ========== */
+:root {
+  --primary: #4d90fe;
+  --primary-dark: #357ae8;
+  --secondary: #6c757d;
+  --secondary-dark: #5a6268;
+  --danger: #dc3545;
+  --danger-dark: #c82333;
+  --success: #28a745;
+  --success-dark: #218838;
+  --white: #fff;
+  --light: #f8f9fa;
+  --dark: #333;
+  --gray: #ddd;
+}
+.lang-switcher {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-right: 15px;
+    background-color: rgb(247, 243, 239);
+}
+
+/* Pour la langue arabe */
+html[dir="rtl"] body {
+    direction: rtl;
+    text-align: right;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+/* Actions */
+.action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .btn-edit {
+            color: #4d90fe;
+        }
+        
+        .btn-delete {
+            color: #dc3545;
+        }
+
+/* ========== IMAGES ========== */
+.travel-image {
+        width: 60px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+/* ========== BASE STYLES ========== */
+body {
+      font-family: 'Arial', sans-serif;
+      background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      position: relative;
+    }
+
+/* ========== LAYOUT ========== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background:  rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.header {
+  padding: 20px 30px;
+  background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+  color: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.main-content {
+  padding: 30px;
+}
+
+/* ========== SEARCH & FILTERS ========== */
+.search-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 20px;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.search-box input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-group label {
+  font-weight: 500;
+  color: #555;
+}
+
+.filter-group select {
+  padding: 12px 15px;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  background-color: var(--white);
+  font-size: 14px;
+  min-width: 180px;
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn i {
+  margin-right: 8px;
+}
+
+.btn-primary {
+            background-color: #4d90fe;
+            color: white;
+        }
+        
+.btn-primary:hover {
+    background-color: #357ae8;
+}
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+.btn-secondary {
+  background-color: var(--secondary);
+  color: var(--white);
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-dark);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: var(--white);
+}
+
+.btn-danger:hover {
+  background-color: var(--danger-dark);
+}
+
+/* ========== TABLE ========== */
+.table-responsive {
+  overflow-x: auto;
+  margin-bottom: 25px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+th, td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background-color: var(--light);
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+tr:hover {
+  background-color: var(--light);
+}
+
+/* ========== STATUS BADGES ========== */
+.status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-archived {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+/* Style pour le statut fidèle */
+.status-fidele {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+/* ========== MODALS ========== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background-color: var(--white);
+  margin: 50px auto;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+  animation: modalopen 0.3s;
+}
+
+@keyframes modalopen {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #777;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ========== FORM ELEMENTS ========== */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+}
+
+.image-preview {
+  margin-top: 10px;
+  width: 100px;
+  height: 100px;
+  border: 1px dashed var(--gray);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .search-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-box {
+    max-width: 100%;
+  }
+  
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 20px auto;
+  }
+}
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1 data-fr="Gestion des Clients" data-en="Clients Management" data-ar="إدارة العملاء">Gestion des Clients</h1>
+        <div>
+            <select id="langSwitcher" class="lang-switcher">
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+                <option value="ar">العربية</option>
+            </select>
+            <!-- Button to Open Modal -->
+            <button id="addTravelBtn" class="btn btn-success" data-fr="Ajouter Client" data-en="Add Client" data-ar="إضافة عميل">
+                <i class="fas fa-plus"></i> <span class="btn-text">Ajouter Client</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" 
+                               data-fr-placeholder="Rechercher Clients..." 
+                               data-en-placeholder="Search Clients..." 
+                               data-ar-placeholder="بحث العملاء..." 
+                               placeholder="Rechercher Clients..." 
+                               aria-label="Rechercher des clients">
+                    </div>
+                    <div class="filter-group">
+                        <label for="fidelityFilter" data-fr="Filtrer par:" data-en="Filter by:" data-ar="تصفية حسب:">Filtrer par:</label>
+                        <select id="fidelityFilter" class="form-control">
+                            <option value="all" data-fr="Tous les clients" data-en="All clients" data-ar="جميع العملاء">Tous les clients</option>
+                            <option value="fidele" data-fr="Clients fidèles" data-en="Loyal clients" data-ar="عملاء مخلصون">Clients fidèles</option>
+                        </select>
+                    </div>
+                </div>
+    <div class="table-responsive">
+        <table id="travelsTable" aria-describedby="tableDescription">
+            <caption id="tableDescription" class="sr-only">Liste des Clients</caption>
+            <thead>
+                <tr>
+                    <th scope="col" data-fr="ID" data-en="ID" data-ar="المعرف">ID</th>
+                    <th scope="col" data-fr="Nom" data-en="Last Name" data-ar="الاسم العائلي">Nom</th>
+                    <th scope="col" data-fr="Prénom" data-en="First Name" data-ar="الاسم الشخصي">Prénom</th>
+                    <th scope="col" data-fr="Email" data-en="Email" data-ar="البريد الإلكتروني">Email</th>
+                    <th scope="col" data-fr="Adresse" data-en="Address" data-ar="العنوان">Adresse</th>
+                    <th scope="col" data-fr="Téléphone" data-en="Phone" data-ar="الهاتف">Téléphone</th>
+                    <th scope="col" data-fr="Statut" data-en="Status" data-ar="الحالة">Statut</th>
+                    <th scope="col" data-fr="Actions" data-en="Actions" data-ar="إجراءات">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="travelsTableBody">
+                <!-- Dynamic content here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Background (Overlay) -->
+<div id="modalOverlay" class="modal-overlay"></div>
+
+<!-- Add Client Modal -->
+<div class="modal" id="addClientModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 data-fr="Ajouter un client" data-en="Add a Client" data-ar="إضافة عميل">Ajouter un client</h2>
+            <button class="close-btn" onclick="closeAddClientModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="addClientForm">
+                <div class="form-group">
+                    <label for="clientName" data-fr="Nom:" data-en="Last Name:" data-ar="الاسم العائلي:">Nom:</label>
+                    <input type="text" id="clientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientPrenom" data-fr="Prénom:" data-en="First Name:" data-ar="الاسم الشخصي:">Prénom:</label>
+                    <input type="text" id="clientPrenom" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientEmail" data-fr="Email:" data-en="Email:" data-ar="البريد الإلكتروني:">Email:</label>
+                    <input type="email" id="clientEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientAdresse" data-fr="Adresse:" data-en="Address:" data-ar="العنوان:">Adresse:</label>
+                    <input type="text" id="clientAdresse" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientTel" data-fr="Téléphone:" data-en="Phone:" data-ar="الهاتف:">Téléphone:</label>
+                    <input type="tel" id="clientTel" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientVoyages" data-fr="Nombre de voyages:" data-en="Number of travels:" data-ar="عدد الرحلات:">Nombre de voyages:</label>
+                    <input type="number" id="clientVoyages" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="clientPersonnes" data-fr="Nombre de personnes (max):" data-en="Number of people (max):" data-ar="عدد الأشخاص (الأقصى):">Nombre de personnes (max):</label>
+                    <input type="number" id="clientPersonnes" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="clientPrix" data-fr="Prix total des voyages (DA):" data-en="Total travel price (DA):" data-ar="السعر الإجمالي للرحلات (دج):">Prix total des voyages (DA):</label>
+                    <input type="number" id="clientPrix" min="0" value="0">
+                </div>
+                <button type="submit" class="btn btn-primary" data-fr="Ajouter" data-en="Add" data-ar="إضافة">Ajouter</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sample data for clients
+    let clients = [
+        {
+            id: 1,
+            nom: "Boumediane",
+            prenom: "Ali",
+            email: "alibou@email.com",
+            adresse: "djelfa",
+            telephone: "0776809932",
+            voyages: 4,
+            personnes: 6,
+            prix: 250000
+        },
+        {
+            id: 2,
+            nom: "Bedj",
+            prenom: "Ahmed",
+            email: "ahmed22@email.com",
+            adresse: "hassi rmel laghouat",
+            telephone: "0660785549",
+            voyages: 2,
+            personnes: 2,
+            prix: 150000
+        },
+        {
+            id: 3,
+            nom: "Houari",
+            prenom: "Amina",
+            email: "a.hou@email.com",
+            adresse: "el wiam laghouate",
+            telephone: "0567891234",
+            voyages: 5,
+            personnes: 2,
+            prix: 180000
+        }
+    ];
+
+    // Function to render clients table
+    function renderClients(filter = 'all') {
+        const tableBody = document.getElementById('travelsTableBody');
+        tableBody.innerHTML = '';
+        
+        clients.forEach(client => {
+            // Check if client is "fidèle" based on conditions
+            const isFidele = client.prix >= 200000 || client.voyages >= 3 || client.personnes >= 5;
+            
+            // Apply filter
+            if (filter === 'fidele' && !isFidele) return;
+            
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td>${client.id}</td>
+                <td>${client.nom}</td>
+                <td>${client.prenom}</td>
+                <td>${client.email}</td>
+                <td>${client.adresse}</td>
+                <td>${client.telephone}</td>
+                <td><span class="status ${isFidele ? 'status-fidele' : ''}">${isFidele ? 'Fidèle' : 'Standard'}</span></td>
+                <td>
+                    <button class="action-btn btn-edit"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Function to change language
+    function changeLanguage(lang) {
+        // Update HTML direction for Arabic
+        if (lang === 'ar') {
+            document.documentElement.dir = 'rtl';
+        } else {
+            document.documentElement.dir = 'ltr';
+        }
+        
+        // Update all elements with data attributes
+        document.querySelectorAll('[data-fr], [data-en], [data-ar]').forEach(element => {
+            if (element.dataset[lang]) {
+                if (element.tagName === 'INPUT' && element.placeholder) {
+                    element.placeholder = element.dataset[`${lang}-placeholder`] || element.dataset[lang];
+                } else if (element.tagName === 'TITLE') {
+                    element.textContent = element.dataset[lang];
+                } else {
+                    element.textContent = element.dataset[lang];
+                }
+            }
+        });
+        
+        // Update button texts with icons
+        document.querySelectorAll('.btn-text').forEach(element => {
+            const btn = element.closest('button');
+            if (btn && btn.dataset[lang]) {
+                element.textContent = btn.dataset[lang];
+            }
+        });
+    }
+
+    // Language switcher event
+    document.getElementById('langSwitcher').addEventListener('change', function() {
+        changeLanguage(this.value);
+    });
+
+    // Fidelity filter event
+    document.getElementById('fidelityFilter').addEventListener('change', function() {
+        renderClients(this.value);
+    });
+
+    // Initialize with French
+    changeLanguage('fr');
+
+    // Open the modal when the "Add Client" button is clicked
+    document.getElementById("addTravelBtn").addEventListener("click", function() {
+        openAddClientModal();
+    });
+
+    // Function to open the modal
+    function openAddClientModal() {
+        document.getElementById("addClientModal").style.display = "block";
+        document.getElementById("modalOverlay").style.display = "block";
+    }
+
+    // Function to close the modal
+    function closeAddClientModal() {
+        document.getElementById("addClientModal").style.display = "none";
+        document.getElementById("modalOverlay").style.display = "none";
+    }
+
+    // Form submission handler
+    document.getElementById("addClientForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        // Get form values
+        const newClient = {
+            id: clients.length + 1,
+            nom: document.getElementById("clientName").value,
+            prenom: document.getElementById("clientPrenom").value,
+            email: document.getElementById("clientEmail").value,
+            adresse: document.getElementById("clientAdresse").value,
+            telephone: document.getElementById("clientTel").value,
+            voyages: parseInt(document.getElementById("clientVoyages").value),
+            personnes: parseInt(document.getElementById("clientPersonnes").value),
+            prix: parseInt(document.getElementById("clientPrix").value)
+        };
+        
+        // Add new client
+        clients.push(newClient);
+        
+        // Render table with new client
+        renderClients(document.getElementById('fidelityFilter').value);
+        
+        // Close modal and reset form
+        closeAddClientModal();
+        this.reset();
+    });
+
+    // Example search function
+    function searchClient() {
+        var searchValue = document.getElementById("searchInput").value.toLowerCase();
+        console.log("Searching for: " + searchValue);
+    }
+
+    // Initial render
+    renderClients();
+</script>
+
+</body>
+</html>

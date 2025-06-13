@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+  <title>Ourida Tour - Voyages en Avion</title>
+  <style>
+    .language-switcher {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 2;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 100%);
+      z-index: 0;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 650px;
+      background-color: transparent;
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-box {
+      background-color: rgba(255, 165, 0, 0.1);
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      display: none;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .form-box.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-box h2 {
+      text-align: center;
+      color: white;
+      font-size: 28px;
+      margin-bottom: 20px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 14px;
+      margin-top: 14px;
+      border: 1px solid rgba(204, 204, 204, 0.5);
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-sizing: border-box;
+    }
+
+    .btn {
+      margin-top: 24px;
+      width: 100%;
+      background-color: rgba(241, 90, 36, 0.9);
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .btn:hover {
+      background-color: #e04b1a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(224, 75, 26, 0.3);
+    }
+
+    .link {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .link a {
+      color: #f15a24;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="language-switcher">
+    <select id="languageSelector" onchange="changeLanguage()">
+      <option value="fr">FR</option>
+      <option value="en">EN</option>
+      <option value="ar">AR</option>
+    </select>
+  </div>
+
+  <!-- Connexion -->
+  <div class="form-box active" id="loginBox">
+    <h2 id="loginTitle">Mot de passe oublié </h2>
+    <input type="email" id="loginEmail" placeholder="Adresse e-mail">
+   
+    
+    <button class="btn" onclick="login()" id="loginBtn">Envoyer</button>
+    
+  </div>
+
+  
+
+<script>
+  const translations = {
+    ar: {
+      title: "نسيت كلمة المرور",
+      emailLabel: "أدخل بريدك الإلكتروني",
+      submitBtn: "إرسال",
+      successMessage: "تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني."
+    },
+    fr: {
+      title: "Mot de passe oublié",
+      emailLabel: "Entrez votre adresse e-mail",
+      submitBtn: "Envoyer",
+      successMessage: "Un lien de réinitialisation du mot de passe a été envoyé à votre e-mail."
+    },
+    en: {
+      title: "Forgot Password",
+      emailLabel: "Enter your email address",
+      submitBtn: "Send",
+      successMessage: "A password reset link has been sent to your email address."
+    }
+  };
+
+  function setLanguage(lang) {
+    document.getElementById('loginTitle').innerText = translations[lang].title;
+    document.getElementById('loginEmail').placeholder = translations[lang].emailLabel;
+    document.getElementById('loginBtn').innerText = translations[lang].submitBtn;
+  }
+
+  // تغيير اللغة عند اختيار اللغة من القائمة
+  function changeLanguage() {
+    const selectedLang = document.getElementById('languageSelector').value;
+    setLanguage(selectedLang);
+  }
+
+  // دالة محاكاة إرسال البريد الإلكتروني
+  function login() {
+    const email = document.getElementById('loginEmail').value;
+    if (email === "") {
+      alert("Please enter your email address.");
+      return;
+    }
+
+    // هنا نعرض الرسالة بعد فترة قصيرة
+    setTimeout(() => {
+      alert(translations[document.getElementById('languageSelector').value].successMessage);
+      document.getElementById('loginEmail').value = ""; // مسح الحقل بعد الإرسال
+    }, 500);
+  }
+</script>
+
+</body>
+</html>
+
+
+

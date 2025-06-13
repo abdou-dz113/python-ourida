@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <title>Tableau de Bord Admin</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark: #2e5a8aaf;
+            --light: #ecf0f1;
+            --transport: #9b59b6;
+            --guide: #1abc9c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f5f7fa;
+            transition: all 0.3s;
+             background:url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80') no-repeat center center fixed;
+            background-size: cover;;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e1e5eb;
+        }
+
+        .dashboard-header h1 { 
+            font-family: 'Raleway', sans-serif;
+            color: #ffffff;
+             margin: 0;
+            font-weight: 300;
+            text-shadow: 0 0 5px #fff, 0 0 10px #0d84dfe1, 0 0 15px #0d84dfe1;
+    }
+
+
+        .language-selector {
+            position: relative;
+        }
+
+        .language-selector select {
+            padding: 8px 30px 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 14px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 1em;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+           
+        }
+
+        .dashboard-btn {
+            background-color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(8, 56, 228, 0.642);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none; /* Enlève le soulignement du lien */
+            color: white; /* ou la couleur souhaitée */
+        }
+
+        .dashboard-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background-color: #f8f9fa;
+
+        }
+
+        .dashboard-btn i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-btn h2 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        /* Couleurs spécifiques pour chaque bouton */
+        .btn-voyages i { color: var(--primary); }
+        .btn-reservations i { color: var(--success); }
+        .btn-offres i { color: var(--warning); }
+        .btn-hotels i { color: #e74c3c; }
+        .btn-factures i { color: #2ecc71; }
+        .btn-transports i { color: var(--transport); }
+        .btn-clients i { color: #3498db; }
+        .btn-messages i { color: #9b59b6; }
+        .btn-guides i {color: #f87c00; /* Couleur turquoise pour les guides */
+}
+
+        /* Style pour la version arabe */
+        html[dir="rtl"] .dashboard-header {
+            flex-direction: row-reverse;
+        }
+
+        html[dir="rtl"] .dashboard-grid {
+            direction: rtl;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .language-selector {
+                width: 100%;
+            }
+            
+            .language-selector select {
+                width: 100%;
+            }
+        }
+    </style>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Tableau de Bord</h1>
+            <div class="language-selector">
+                <select id="language-select">
+                    <option value="fr">FR</option>
+                    <option value="ar">AR</option>
+                    <option value="en">EN</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+    <a href="{{ url_for('G_Voyages') }}" class="dashboard-btn btn-voyages" data-i18n="voyages">
+
+        <i class="fas fa-plane"></i>
+        <h2>Voyages</h2>
+    </a>
+
+    <a href="{{ url_for('G_Reservations') }}" class="dashboard-btn btn-reservations" data-i18n="reservations">
+
+        <i class="fas fa-calendar-check"></i>
+        <h2>Réservations</h2>
+    </a>
+
+    <a href="{{ url_for('G_Offres') }}" class="dashboard-btn btn-offres" data-i18n="offres">
+
+        <i class="fas fa-tags"></i>
+        <h2>Offres</h2>
+    </a>
+
+    <a href="{{ url_for('Hotels') }}" class="dashboard-btn btn-hotels" data-i18n="hotels">
+
+        <i class="fas fa-hotel"></i>
+        <h2>Hôtels</h2>
+    </a>
+
+    <a href="{{ url_for('G_Factures') }}" class="dashboard-btn btn-factures" data-i18n="factures">
+    <i class="fas fa-file-invoice"></i>
+    <h2>Factures</h2>
+</a>
+
+
+    <a href="{{ url_for('G_Transport') }}" class="dashboard-btn btn-transports" data-i18n="transports">
+    <i class="fas fa-bus"></i>
+    <h2>Transports</h2>
+</a>
+
+    <a href="{{ url_for('G_Clients') }}" class="dashboard-btn btn-clients" data-i18n="clients">
+
+        <i class="fas fa-users"></i>
+        <h2>Clients</h2>
+    </a>
+
+    <a href="{{ url_for('G_Messages') }}" class="dashboard-btn btn-messages" data-i18n="messages">
+
+        <i class="fas fa-envelope"></i>
+        <h2>Messages</h2>
+    </a>
+    <a href="{{ url_for('page_guides') }}" class="dashboard-btn btn-guides" data-i18n="guides">
+    <i class="fas fa-user-tie"></i>
+    <h2>Guides</h2>
+</a>
+
+</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sélecteur de langue
+            const languageSelect = document.getElementById('language-select');
+            
+            // Traductions
+            const translations = {
+                fr: {
+                    voyages: "Voyages",
+                    reservations: "Réservations",
+                    offres: "Offres",
+                    hotels: "Hôtels",
+                    factures: "Factures",
+                    transports: "Transports",
+                    clients: "Clients",
+                    messages: "Messages",
+                    guides: "Guides",
+                    dashboard: "Tableau de Bord"
+                },
+                ar: {
+                    voyages: "رحلات",
+                    reservations: "حجوزات",
+                    offres: "عروض",
+                    hotels: "فنادق",
+                    factures: "فواتير",
+                    transports: "مواصلات",
+                    clients: "عملاء",
+                    messages: "رسائل",
+                    guides: "مرشدين",
+                    dashboard: "لوحة القيادة"
+                },
+                en: {
+                    voyages: "Trips",
+                    reservations: "Bookings",
+                    offres: "Offers",
+                    hotels: "Hotels",
+                    factures: "Invoices",
+                    transports: "Transport",
+                    clients: "Customers",
+                    messages: "Messages",
+                    guides: "Guides",
+                    dashboard: "Dashboard"
+                }
+            };
+
+            // Changer la langue
+            languageSelect.addEventListener('change', function() {
+                const lang = this.value;
+                changeLanguage(lang);
+            });
+
+            function changeLanguage(lang) {
+                // Changer la direction pour l'arabe
+                if (lang === 'ar') {
+                    document.documentElement.dir = 'rtl';
+                    document.documentElement.lang = 'ar';
+                } else {
+                    document.documentElement.dir = 'ltr';
+                    document.documentElement.lang = lang;
+                }
+
+                // Mettre à jour les textes des boutons
+                const buttons = document.querySelectorAll('.dashboard-btn');
+                buttons.forEach(button => {
+                    const key = button.getAttribute('data-i18n');
+                    const h2 = button.querySelector('h2');
+                    if (h2 && translations[lang] && translations[lang][key]) {
+                        h2.textContent = translations[lang][key];
+                    }
+                });
+
+                // Mettre à jour le titre
+                const title = document.querySelector('.dashboard-header h1');
+                if (title && translations[lang] && translations[lang]['dashboard']) {
+                    title.textContent = translations[lang]['dashboard'];
+                }
+            }
+
+            // Initialiser avec la langue du navigateur ou français par défaut
+            const browserLang = navigator.language.substring(0, 2);
+            if (browserLang === 'ar' || browserLang === 'en') {
+                languageSelect.value = browserLang;
+                changeLanguage(browserLang);
+            } else {
+                changeLanguage('fr');
+            }
+        });
+
+        // Fonction de navigation (à adapter selon vos besoins)
+        function navigateTo(page) {
+            console.log(`Navigation vers: ${page}`);
+            // Ici vous pouvez ajouter la logique de redirection
+            // window.location.href = `/${page}.html`;
+        }
+    </script>
+</body>
+</html>

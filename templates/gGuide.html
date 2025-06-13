@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <title>Gestion des Guides</title>
+    <style>
+    /* ========== VARIABLES & RESET ========== */
+:root {
+  --primary: #4d90fe;
+  --primary-dark: #357ae8;
+  --secondary: #6c757d;
+  --secondary-dark: #5a6268;
+  --danger: #dc3545;
+  --danger-dark: #c82333;
+  --success: #28a745;
+  --success-dark: #218838;
+  --white: #fff;
+  --light: #f8f9fa;
+  --dark: #333;
+  --gray: #ddd;
+  --shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+/* ========== BASE STYLES ========== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  position: relative;
+  line-height: 1.6;
+}
+
+/* ========== LAYOUT & CONTAINER ========== */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.header {
+  padding: 20px 30px;
+  background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+  color: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.main-content {
+  padding: 25px;
+}
+
+/* ========== UTILITY CLASSES ========== */
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+.gap-15 {
+  gap: 15px;
+}
+
+/* ========== LANGUAGE SWITCHER ========== */
+.lang-switcher {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--gray);
+  background-color: rgb(247, 243, 239);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.lang-switcher:hover {
+  border-color: var(--primary);
+}
+
+/* RTL Support */
+html[dir="rtl"] body {
+  direction: rtl;
+  text-align: right;
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn i {
+  margin-right: 8px;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-success {
+  background-color: var(--success);
+  color: var(--white);
+}
+
+.btn-success:hover {
+  background-color: var(--success-dark);
+}
+
+.btn-secondary {
+  background-color: var(--secondary);
+  color: var(--white);
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-dark);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: var(--white);
+}
+
+.btn-danger:hover {
+  background-color: var(--danger-dark);
+}
+
+/* ========== SEARCH & FILTERS ========== */
+.search-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 250px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+.search-box input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-group label {
+  font-weight: 500;
+  color: var(--dark);
+}
+
+.filter-group select {
+  padding: 10px 15px;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  background-color: var(--white);
+  font-size: 14px;
+  min-width: 150px;
+  cursor: pointer;
+}
+
+/* ========== TABLE STYLES ========== */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--gray);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--gray);
+}
+
+th {
+  background-color: var(--light);
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+}
+
+tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.id-column {
+  width: 50px;
+  font-weight: 600;
+}
+
+/* ========== ACTION BUTTONS ========== */
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: var(--transition);
+  margin: 0 2px;
+}
+
+.action-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn-edit {
+  color: var(--primary);
+}
+
+.btn-delete {
+  color: var(--danger);
+}
+
+/* ========== MODAL STYLES ========== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow-y: auto;
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  background-color: var(--white);
+  margin: 50px auto;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  width: 90%;
+  max-width: 600px;
+  animation: modalopen 0.3s;
+}
+
+@keyframes modalopen {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--gray);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--secondary);
+  transition: var(--transition);
+}
+
+.close-btn:hover {
+  color: var(--dark);
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid var(--gray);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ========== FORM STYLES ========== */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--dark);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* ========== LANGUAGE SELECTION ========== */
+.language-selection-container {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid var(--gray);
+  border-radius: 5px;
+  margin-top: 8px;
+}
+
+.language-search-box {
+  margin-bottom: 10px;
+}
+
+.language-search-box input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--gray);
+  border-radius: 4px;
+}
+
+.language-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.language-category h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #555;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.language-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+}
+
+.language-options label {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  border-radius: 3px;
+  transition: var(--transition);
+}
+
+.language-options label:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.language-options input[type="checkbox"] {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+/* ========== RESPONSIVE STYLES ========== */
+@media (max-width: 768px) {
+  .header {
+    padding: 15px;
+  }
+  
+  .search-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 20px auto;
+  }
+  
+  th, td {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .header h1 {
+    font-size: 20px;
+  }
+}
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1 data-translate="gestion_guides">Gestion de Guides</h1>
+        <div class="flex gap-15">
+            <select id="langSwitcher" class="lang-switcher">
+                <option value="fr">FR</option>
+                <option value="en">EN</option>
+                <option value="ar">AR</option>
+            </select>
+            <button id="addTravelBtn" class="btn btn-success">
+                <i class="fas fa-plus"></i> <span data-translate="ajouter_guide">Ajouter un Guide</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="search-filter-bar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Rechercher Guides..." data-translate-ph="rechercher_guides">
+            </div>
+        
+            <div class="filter-group">
+                <label for="filterTravel" data-translate="filtrer_voyage">Filtrer par voyage:</label>
+                <select id="filterTravel">
+                    <option value="all" data-translate="tous_voyages">Tous les voyages</option>
+                    <!-- Options will be added dynamically -->
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table id="travelsTable">
+                <thead>
+                    <tr>
+                        <th scope="col" class="id-column">ID</th>
+                        <th scope="col" data-translate="nom">Nom</th>
+                        <th scope="col" data-translate="prenom">Prenom</th>
+                        <th scope="col" data-translate="email">Email</th>
+                        <th scope="col" data-translate="tel">Tel</th>
+                        <th scope="col" data-translate="experience">Experience(nombre de voyage)</th>
+                        <th scope="col" data-translate="langues">Langues</th>
+                        <th scope="col" data-translate="voyage">Voyage</th>
+                        <th scope="col" data-translate="actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="travelsTableBody">
+                    <!-- Les données seront ajoutées dynamiquement via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Guide Modal -->
+<div class="modal" id="addClientModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 data-translate="ajouter_guide">Ajouter un Guide</h2>
+            <button class="close-btn" onclick="closeAddClientModal()">×</button>
+        </div>
+        <form id="transportForm">
+            <div class="modal-body">
+                <input type="hidden" id="transportId" name="transportId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nom" data-translate="nom">Nom</label>
+                        <input type="text" id="nom" name="nom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prenom" data-translate="prenom">Prénom</label>
+                        <input type="text" id="prenom" name="prenom" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="telephone" data-translate="tel">Téléphone</label>
+                        <input type="tel" id="telephone" name="telephone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gmail" data-translate="email">Email</label>
+                        <input type="email" id="gmail" name="gmail" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="experience" data-translate="experience">Expérience</label>
+                        <input type="text" id="experience" name="experience">
+                    </div>
+                    <div class="form-group">
+                        <label for="voyage" data-translate="voyage">Voyage</label>
+                        <select id="voyage" name="voyage" required>
+                            <option value="" selected disabled>Choisir un voyage</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label data-translate="langues_parlees">Langues parlées</label>
+                    <div class="language-selection-container">
+                        <div class="language-search-box">
+                            <input type="text" id="languageSearch" placeholder="Rechercher une langue..." 
+                                   data-translate-ph="rechercher_langue" onkeyup="filterLanguages()">
+                        </div>
+                        
+                        <div class="language-categories">
+                            <!-- Europe -->
+                            <div class="language-category">
+                                <h4>Europe</h4>
+                                <div class="language-options">
+                                    <label><input type="checkbox" name="languages" value="french"> Français</label>
+                                    <label><input type="checkbox" name="languages" value="english"> Anglais</label>
+                                    <label><input type="checkbox" name="languages" value="german"> Allemand</label>
+                                    <label><input type="checkbox" name="languages" value="spanish"> Espagnol</label>
+                                    <label><input type="checkbox" name="languages" value="italian"> Italien</label>
+                                </div>
+                            </div>
+
+                            <!-- Afrique -->
+                            <div class="language-category">
+                                <h4>Afrique</h4>
+                                <div class="language-options">
+                                    <label><input type="checkbox" name="languages" value="arabic"> Arabe</label>
+                                    <label><input type="checkbox" name="languages" value="swahili"> Swahili</label>
+                                </div>
+                            </div>
+
+                            <!-- Asie -->
+                            <div class="language-category">
+                                <h4>Asie</h4>
+                                <div class="language-options">
+                                    <label><input type="checkbox" name="languages" value="mandarin"> Mandarin</label>
+                                    <label><input type="checkbox" name="languages" value="japanese"> Japonais</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-translate="enregistrer">Enregistrer</button>
+                <button type="button" class="btn btn-secondary" onclick="closeAddClientModal()" data-translate="annuler">Annuler</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Données des guides (simulées, en pratique vous pourriez les récupérer depuis une API)
+    const guides = [
+        {
+            id: 1,
+            nom: "Ziani",
+            prenom: "Hamid",
+            email: "hamid@email.com",
+            telephone: "0550525947",
+            experience: "43",
+            langues: "Français, Anglais",
+            voyage: "Paris, France"
+        },
+        {
+            id: 2,
+            nom: "Ben messoude",
+            prenom: "Anas",
+            email: "anas1993@email.com",
+            telephone: "0662664207",
+            experience: "32",
+            langues: "Anglais, Espagnol",
+            voyage: "Thailand"
+        }
+    ];
+
+    // Options de voyage disponibles
+    const voyages = [
+        "Paris, France",
+        "Thailand",
+        "New York, USA",
+        "Tokyo, Japon",
+        "Marrakech, Maroc"
+    ];
+
+    // Fonction pour remplir le tableau avec les données des guides
+    function populateGuidesTable() {
+        const tbody = document.getElementById('travelsTableBody');
+        tbody.innerHTML = ''; // Vider le tableau avant de le remplir
+        
+        guides.forEach(guide => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="id-column">${guide.id}</td>
+                <td>${guide.nom}</td>
+                <td>${guide.prenom}</td>
+                <td>${guide.email}</td>
+                <td>${guide.telephone}</td>
+                <td>${guide.experience}</td>
+                <td>${guide.langues}</td>
+                <td>${guide.voyage}</td>
+                <td>
+                    <button class="action-btn btn-edit"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Fonction pour remplir les options de voyage dans le filtre et le formulaire
+    function populateVoyageOptions() {
+        const filterSelect = document.getElementById('filterTravel');
+        const voyageSelect = document.getElementById('voyage');
+        
+        // Vider les options existantes (sauf la première)
+        filterSelect.innerHTML = '<option value="all" data-translate="tous_voyages">Tous les voyages</option>';
+        voyageSelect.innerHTML = '<option value="" selected disabled>Choisir un voyage</option>';
+        
+        // Ajouter les options de voyage
+        voyages.forEach(voyage => {
+            const filterOption = document.createElement('option');
+            filterOption.value = voyage;
+            filterOption.textContent = voyage;
+            filterSelect.appendChild(filterOption);
+            
+            const voyageOption = document.createElement('option');
+            voyageOption.value = voyage;
+            voyageOption.textContent = voyage;
+            voyageSelect.appendChild(voyageOption);
+        });
+    }
+
+    // Translations object
+    const translations = {
+        fr: {
+            gestion_guides: "Gestion de Guides",
+            ajouter_guide: "Ajouter un Guide",
+            rechercher_guides: "Rechercher Guides...",
+            filtrer_voyage: "Filtrer par voyage:",
+            tous_voyages: "Tous les voyages",
+            nom: "Nom",
+            prenom: "Prénom",
+            email: "Email",
+            tel: "Téléphone",
+            experience: "Expérience(nombre de voyages)",
+            langues: "Langues",
+            voyage: "Voyage",
+            actions: "Actions",
+            langues_parlees: "Langues parlées",
+            rechercher_langue: "Rechercher une langue...",
+            enregistrer: "Enregistrer",
+            annuler: "Annuler"
+        },
+        en: {
+            gestion_guides: "Guides Management",
+            ajouter_guide: "Add Guide",
+            rechercher_guides: "Search Guides...",
+            filtrer_voyage: "Filter by trip:",
+            tous_voyages: "All trips",
+            nom: "Last Name",
+            prenom: "First Name",
+            email: "Email",
+            tel: "Phone",
+            experience: "Experience",
+            langues: "Languages",
+            voyage: "Trip",
+            actions: "Actions",
+            langues_parlees: "Spoken languages",
+            rechercher_langue: "Search language...",
+            enregistrer: "Save",
+            annuler: "Cancel"
+        },
+        ar: {
+            gestion_guides: "إدارة المرشدين",
+            ajouter_guide: "إضافة مرشد",
+            rechercher_guides: "البحث عن المرشدين...",
+            filtrer_voyage: "تصفية حسب الرحلة:",
+            tous_voyages: "جميع الرحلات",
+            nom: "الاسم",
+            prenom: "اللقب",
+            email: "البريد الإلكتروني",
+            tel: "الهاتف",
+            experience: "الخبرة",
+            langues: "اللغات",
+            voyage: "الرحلة",
+            actions: "الإجراءات",
+            langues_parlees: "اللغات المتحدث بها",
+            rechercher_langue: "البحث عن لغة...",
+            enregistrer: "حفظ",
+            annuler: "إلغاء"
+        }
+    };
+
+    // Function to translate the page
+    function translatePage(lang) {
+        // Translate elements with data-translate attribute
+        document.querySelectorAll('[data-translate]').forEach(element => {
+            const key = element.getAttribute('data-translate');
+            if (translations[lang] && translations[lang][key]) {
+                element.textContent = translations[lang][key];
+            }
+        });
+
+        // Translate placeholders with data-translate-ph attribute
+        document.querySelectorAll('[data-translate-ph]').forEach(element => {
+            const key = element.getAttribute('data-translate-ph');
+            if (translations[lang] && translations[lang][key]) {
+                element.setAttribute('placeholder', translations[lang][key]);
+            }
+        });
+
+        // For RTL languages like Arabic
+        if (lang === 'ar') {
+            document.body.setAttribute('dir', 'rtl');
+            document.body.style.textAlign = 'right';
+        } else {
+            document.body.setAttribute('dir', 'ltr');
+            document.body.style.textAlign = 'left';
+        }
+    }
+
+    // Language switcher event
+    document.getElementById('langSwitcher').addEventListener('change', function() {
+        const lang = this.value;
+        translatePage(lang);
+    });
+
+    // Initialize with French
+    translatePage('fr');
+
+    // Modal functions
+    function openAddClientModal() {
+        document.getElementById("addClientModal").style.display = "block";
+    }
+
+    function closeAddClientModal() {
+        document.getElementById("addClientModal").style.display = "none";
+    }
+
+    // Open the modal when the "Add Guide" button is clicked
+    document.getElementById("addTravelBtn").addEventListener("click", openAddClientModal);
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === document.getElementById('addClientModal')) {
+            closeAddClientModal();
+        }
+    });
+
+    // Form submission
+    document.getElementById("transportForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        // Generate a new ID
+        const newId = guides.length > 0 ? Math.max(...guides.map(g => g.id)) + 1 : 1;
+        
+        // Get form values
+        const nom = document.getElementById('nom').value;
+        const prenom = document.getElementById('prenom').value;
+        const telephone = document.getElementById('telephone').value;
+        const email = document.getElementById('gmail').value;
+        const experience = document.getElementById('experience').value;
+        const langues = getSelectedLanguages().join(', ');
+        const voyage = document.getElementById('voyage').value;
+        
+        // Create new guide object
+        const newGuide = {
+            id: newId,
+            nom,
+            prenom,
+            email,
+            telephone,
+            experience,
+            langues,
+            voyage
+        };
+        
+        // Add to guides array
+        guides.push(newGuide);
+        
+        // Refresh table
+        populateGuidesTable();
+        
+        // Show success message
+        alert("Guide ajouté avec succès!");
+        
+        // Close modal and reset form
+        closeAddClientModal();
+        this.reset();
+    });
+
+    // Search function
+    document.getElementById("searchInput").addEventListener("input", function() {
+        const searchValue = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#travelsTableBody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchValue) ? "" : "none";
+        });
+    });
+
+    // Filter by voyage
+    document.getElementById("filterTravel").addEventListener("change", function() {
+        const selectedVoyage = this.value;
+        const rows = document.querySelectorAll('#travelsTableBody tr');
+        
+        rows.forEach(row => {
+            if (selectedVoyage === "all") {
+                row.style.display = "";
+            } else {
+                const voyageCell = row.cells[7].textContent;
+                row.style.display = voyageCell.includes(selectedVoyage) ? "" : "none";
+            }
+        });
+    });
+
+    // Filter languages
+    function filterLanguages() {
+        const input = document.getElementById('languageSearch');
+        const filter = input.value.toUpperCase();
+        const categories = document.querySelectorAll('.language-category');
+        
+        categories.forEach(category => {
+            const options = category.querySelectorAll('.language-options label');
+            let hasVisibleOptions = false;
+            
+            options.forEach(option => {
+                const text = option.textContent || option.innerText;
+                if (text.toUpperCase().includes(filter)) {
+                    option.style.display = "flex";
+                    hasVisibleOptions = true;
+                } else {
+                    option.style.display = "none";
+                }
+            });
+            
+            // Show/hide category based on visible options
+            category.style.display = hasVisibleOptions ? "block" : "none";
+        });
+    }
+
+    // Get selected languages
+    function getSelectedLanguages() {
+        const checkboxes = document.querySelectorAll('#addClientModal input[name="languages"]:checked');
+        return Array.from(checkboxes).map(cb => {
+            const label = cb.nextElementSibling.textContent.trim();
+            return label;
+        });
+    }
+
+    // Edit and delete buttons functionality
+    document.addEventListener('click', function(e) {
+        // Edit button
+        if (e.target.closest('.btn-edit')) {
+            const row = e.target.closest('tr');
+            const id = parseInt(row.cells[0].textContent);
+            const guide = guides.find(g => g.id === id);
+            
+            if (guide) {
+                // Fill the form with guide data
+                document.getElementById('nom').value = guide.nom;
+                document.getElementById('prenom').value = guide.prenom;
+                document.getElementById('gmail').value = guide.email;
+                document.getElementById('telephone').value = guide.telephone;
+                document.getElementById('experience').value = guide.experience;
+                document.getElementById('voyage').value = guide.voyage;
+                
+                // Check the appropriate language checkboxes
+                const langues = guide.langues.split(',').map(l => l.trim());
+                document.querySelectorAll('#addClientModal input[name="languages"]').forEach(checkbox => {
+                    const label = checkbox.nextElementSibling.textContent.trim();
+                    checkbox.checked = langues.includes(label);
+                });
+                
+                // Store the guide ID to update
+                document.getElementById('transportId').value = guide.id;
+                
+                // Open the modal
+                openAddClientModal();
+            }
+        }
+        
+        // Delete button
+        if (e.target.closest('.btn-delete')) {
+            if (confirm("Êtes-vous sûr de vouloir supprimer ce guide ?")) {
+                const row = e.target.closest('tr');
+                const id = parseInt(row.cells[0].textContent);
+                
+                // Remove from guides array
+                const index = guides.findIndex(g => g.id === id);
+                if (index !== -1) {
+                    guides.splice(index, 1);
+                }
+                
+                // Remove row from table
+                row.remove();
+            }
+        }
+    });
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        populateGuidesTable();
+        populateVoyageOptions();
+    });
+</script>
+</body>
+</html>

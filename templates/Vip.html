@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+ <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+  <title>Custom Trip Request | Ourida Tour</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: red;
+      margin-bottom: 20px;
+    }
+    form label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    form input, form select, form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    .checkbox-group {
+      margin-top: 10px;
+    }
+    .checkbox-group label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: 20px;
+      font-weight: normal;
+      cursor: pointer;
+      user-select: none;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      cursor: pointer;
+    }
+    button {
+      margin-top: 25px;
+      width: 100%;
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color:  #cc0000;
+    }
+    .conditional {
+      display: none;
+      margin-top: 10px;
+    }
+    .documents-group {
+      margin-top: 15px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background-color: #f5f5f5;
+    }
+    .documents-group label {
+      font-weight: normal;
+      margin-top: 8px;
+    }
+	#scrollTopBtn {
+  display: none;
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  z-index: 99;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  border: none;
+  outline: none;
+  background-color: red;
+  color: white;
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: background-color 0.3s ease;
+}
+
+
+#scrollTopBtn:hover {
+  background-color: #cc0000;
+}
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Customized Trip</h2>
+  <form action="/submit_custom_trip" method="POST" enctype="multipart/form-data">
+
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required />
+
+    <label for="destination">Preferred Destination:</label>
+    <input type="text" id="destination" name="destination" required />
+
+    <label for="people_count">Number of People:</label>
+    <input type="number" id="people_count" name="people_count" min="1" max="16" required onchange="generateDocumentsFields()" />
+
+    <!-- هنا سيتم توليد حقول الوثائق لكل شخص -->
+    <div id="documents_container"></div>
+
+    <label for="service_select">Select Service to Book:</label>
+    <select id="service_select" name="service_select" required onchange="handleServiceChange()">
+      <option value="">-- Select Service --</option>
+      <option value="flight">Flight</option>
+      <option value="car">Transportation (Car)</option>
+      <option value="hotel">Hotel</option>
+    </select>
+
+   <!-- قائمة الفنادق تظهر عند اختيار hotel -->
+<div id="hotel_name_field" class="conditional">
+  <label for="hotel_select">Choose a Hotel:</label>
+  <select id="hotel_select" name="hotel_name" required>
+    <option value="">-- Select Hotel --</option>
+  </select>
+</div>
+
+    <label for="proposed_date">Preferred Date:</label>
+    <input type="date" id="proposed_date" name="proposed_date" />
+
+    <label for="phone">Phone Number:</label>
+    <input type="tel" id="phone" name="phone" required />
+
+    <label for="email">Email Address:</label>
+    <input type="email" id="email" name="email" required />
+
+    <label>Payment Type:</label>
+    <select id="paymentType" name="paymentType" onchange="handlePayment()" required>
+      <option value="">-- Select Payment --</option>
+      <option value="cash">Cash</option>
+      <option value="installment">Installment</option>
+    </select>
+
+    <div id="installmentSection" class="conditional">
+      <label>Number of Months (max 16):</label>
+      <select id="months" name="months">
+        <option value="">-- Select --</option>
+      </select>
+    </div>
+
+    <label>Payment Method:</label>
+<select id="paymentMethod" name="paymentMethod" onchange="handleMethod()" required>
+  <option value="">-- Select Method --</option>
+  <option value="postal">Postal Service</option>
+  <option value="baridi">Baridi Mob</option>
+  <option value="agency">Pay at Agency</option>
+</select>
+
+   <div id="baridiSection" class="conditional">
+  <p id="ccpText"><strong>CCP Number:</strong> 0040562109  Clé 89</p>
+  <p id="ripText" style="display:none; color: green;"><strong>RIP:</strong> 00799999000000123456</p>
+  <label for="paymentProof" id="proofLabel">Upload Payment Proof:</label>
+  <input type="file" id="paymentProof" name="paymentProof" class="upload-box" />
+</div>
+
+
+<div id="agencyMessage" class="conditional">
+  <p><strong>Note:</strong> سيتم التواصل معك لتأكيد الحجز.</p>
+</div>
+
+    <button type="submit">Submit Request</button>
+  </form>
+</div>
+<button onclick="scrollToTop()" id="scrollTopBtn" title="Go to top">↑</button>
+
+<script>
+  function handlePayment() {
+    const paymentType = document.getElementById("paymentType").value;
+    const installmentSection = document.getElementById("installmentSection");
+
+    if (paymentType === "installment") {
+      installmentSection.style.display = "block";
+    } else {
+      installmentSection.style.display = "none";
+      document.getElementById("months").value = "";
+    }
+  }
+
+  function handleMethod() {
+  const paymentMethod = document.getElementById("paymentMethod").value;
+  const baridiSection = document.getElementById("baridiSection");
+  const agencyMessage = document.getElementById("agencyMessage");
+  const ripText = document.getElementById("ripText");
+
+  if (paymentMethod === "baridi" || paymentMethod === "postal") {
+    baridiSection.style.display = "block";
+    agencyMessage.style.display = "none";
+
+    if (paymentMethod === "baridi") {
+      ripText.style.display = "block";
+    } else {
+      ripText.style.display = "none";
+    }
+
+  } else if (paymentMethod === "agency") {
+    baridiSection.style.display = "none";
+    document.getElementById("paymentProof").value = "";
+    agencyMessage.style.display = "block";
+    ripText.style.display = "none";
+  } else {
+    baridiSection.style.display = "none";
+    agencyMessage.style.display = "none";
+    document.getElementById("paymentProof").value = "";
+    ripText.style.display = "none";
+  }
+}
+
+
+  function fillInstallmentMonths() {
+    const select = document.getElementById("months");
+    select.innerHTML = "<option value=''>-- Select --</option>";
+    for (let i = 1; i <= 16; i++) {
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = i + (i === 1 ? " month" : " months");
+      select.appendChild(option);
+    }
+  }
+
+  async function fetchHotels(destination) {
+    const hotelSelect = document.getElementById("hotel_select");
+    hotelSelect.innerHTML = "<option value=''>Loading...</option>";
+
+    try {
+      const response = await fetch(`/get_hotels?destination=${encodeURIComponent(destination)}`);
+      const data = await response.json();
+
+      hotelSelect.innerHTML = "<option value=''>-- Select Hotel --</option>";
+      if (data.hotels.length === 0) {
+        hotelSelect.innerHTML += "<option disabled>No hotels available for this destination</option>";
+      } else {
+        data.hotels.forEach(hotel => {
+          const option = document.createElement("option");
+          option.value = hotel;
+          option.textContent = hotel;
+          hotelSelect.appendChild(option);
+        });
+      }
+    } catch (error) {
+      hotelSelect.innerHTML = "<option disabled>Error loading hotels</option>";
+      console.error("Error fetching hotels:", error);
+    }
+  }
+
+  function handleServiceChange() {
+    const service = document.getElementById("service_select").value;
+    const hotelField = document.getElementById("hotel_name_field");
+    const destination = document.getElementById("destination").value.trim();
+
+    if (service === "hotel") {
+      hotelField.style.display = "block";
+      document.getElementById("hotel_select").required = true;
+
+      if (destination !== "") {
+        fetchHotels(destination);
+      }
+    } else {
+      hotelField.style.display = "none";
+      document.getElementById("hotel_select").required = false;
+    }
+  }
+
+  function generateDocumentsFields() {
+    const container = document.getElementById("documents_container");
+    const count = parseInt(document.getElementById("people_count").value);
+    container.innerHTML = "";
+
+    if (count && count > 0 && count <= 16) {
+      for (let i = 1; i <= count; i++) {
+        const group = document.createElement("div");
+        group.className = "documents-group";
+
+        const heading = document.createElement("h3");
+        heading.textContent = `Documents for Person ${i}`;
+        heading.style.marginTop = "0";
+        group.appendChild(heading);
+
+        const labelPassport = document.createElement("label");
+        labelPassport.textContent = `Passport of Person ${i}:`;
+        labelPassport.setAttribute("for", `passport_${i}`);
+
+        const inputPassport = document.createElement("input");
+        inputPassport.type = "file";
+        inputPassport.name = `passport_${i}`;
+        inputPassport.id = `passport_${i}`;
+        inputPassport.accept = "image/*,application/pdf";
+        inputPassport.required = true;
+
+        const labelIdCard = document.createElement("label");
+        labelIdCard.textContent = `National ID Card of Person ${i}:`;
+        labelIdCard.setAttribute("for", `id_card_${i}`);
+
+        const inputIdCard = document.createElement("input");
+        inputIdCard.type = "file";
+        inputIdCard.name = `id_card_${i}`;
+        inputIdCard.id = `id_card_${i}`;
+        inputIdCard.accept = "image/*,application/pdf";
+        inputIdCard.required = true;
+
+        group.appendChild(labelPassport);
+        group.appendChild(inputPassport);
+        group.appendChild(labelIdCard);
+        group.appendChild(inputIdCard);
+
+        container.appendChild(group);
+      }
+    }
+  }
+
+  document.getElementById("destination").addEventListener("change", function () {
+    const service = document.getElementById("service_select").value;
+    if (service === "hotel") {
+      const destination = this.value.trim();
+      if (destination !== "") {
+        fetchHotels(destination);
+      }
+    }
+  });
+
+  // الزر يظهر عند التمرير ويختفي عند العودة للأعلى
+  window.onscroll = function () {
+    const backToTopBtn = document.getElementById("scrollTopBtn");
+    if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+      backToTopBtn.style.display = "block";
+    } else {
+      backToTopBtn.style.display = "none";
+    }
+  };
+
+  // دالة الصعود للأعلى
+  function scrollToTop() {
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  }
+
+  window.onload = function () {
+    fillInstallmentMonths();
+    handlePayment();
+    handleMethod();
+    handleServiceChange();
+  };
+</script>
+</body>
+</html>
