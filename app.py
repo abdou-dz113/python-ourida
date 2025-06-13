@@ -16,15 +16,20 @@ app.secret_key = os.getenv('SECRET_KEY', 'your_default_secret_key')
 # Database connection
 
 def get_db_connection():
-    if 'db' not in g or not g.db.is_connected():
-        g.db = mysql.connector.connect(
-            host=os.getenv('MYSQLHOST'),
-            user=os.getenv('MYSQLUSER'),
-            password=os.getenv('MYSQLPASSWORD'),
-            database=os.getenv('MYSQLDATABASE'),
-            port=int(os.getenv('MYSQLPORT', 3306))
-        )
-    return g.db
+    db_url = os.environ.get("MYSQL_URL")
+
+    if not db_url:
+        raise Exception("MYSQL_URL environment variable is not set")
+
+    db = urlparse.urlparse(db_url)
+
+    return mysql.connector.connect(
+        host=db.hostname,
+        user=db.username,
+        password=db.password,
+        database=db.path.lstrip("/"),
+        port=db.port or 3306
+    )
 
 @app.teardown_appcontext
 def close_db_connection(exception=None):
